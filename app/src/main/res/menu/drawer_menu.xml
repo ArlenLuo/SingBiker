@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_routeplanner"
+            android:icon="@drawable/ic_menu_bike"
+            android:title="@string/navigation_drawer_item_routeplanner" />
+        <item
+            android:id="@+id/nav_favorites"
+            android:icon="@drawable/ic_menu_heart"
+            android:title="@string/navigation_drawer_item_favorites" />
+        <item
+            android:id="@+id/nav_history"
+            android:icon="@drawable/ic_menu_history"
+            android:title="@string/navigation_drawer_item_history" />
+        <item
+            android:id="@+id/nav_haze"
+            android:icon="@drawable/ic_menu_haze"
+            android:title="@string/navigation_drawer_item_haze" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_menu_settings"
+            android:title="@string/navigation_drawer_item_settings" />
+    </group>
+</menu>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/action_save_trip"
+        android:orderInCategory="1"
+        android:title="@string/action_save_trip"
+        android:icon="@drawable/ic_appbar_check"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_discard_trip"
+        android:orderInCategory="2"
+        android:title="@string/action_discard_trip"
+        android:icon="@drawable/ic_appbar_thrash"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_remove_trip"
+        android:orderInCategory="1"
+        android:title="@string/action_remove_trip"
+        android:icon="@drawable/ic_appbar_thrash"
+        app:showAsAction="always" />
+
+</menu>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="sg.ntu.dataminers.singbiker.boundary.IndividualTripActivity"
+    tools:showIn="@layout/app_bar_individual_trip" >
+
+    <TextView
+        android:id="@+id/individual_trip_map_textview"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        android:padding="10dp"
+
+        android:textSize="20sp"
+        android:text="@string/individual_trip_textview_text" />
+
+    <fragment
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:id="@+id/individual_trip_map_fragment"
+
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/individual_trip_map_textview"
+
+        map:cameraTargetLat="1.290270"
+        map:cameraTargetLng="103.851959"
+        map:cameraZoom="10"
+        map:uiZoomControls="true"
+        map:uiCompass="false"
+        map:uiRotateGestures="false"
+        map:uiTiltGestures="false"
+        />
+
+</RelativeLayout>
