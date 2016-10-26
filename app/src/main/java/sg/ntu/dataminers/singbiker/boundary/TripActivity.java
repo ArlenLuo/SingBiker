@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import sg.ntu.dataminers.singbiker.R;
 
@@ -55,8 +56,11 @@ public class TripActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_save_trip) {
-
+        if (id == R.id.action_trip_info) {
+            Toast.makeText(getApplicationContext(), "TRIP INFO", Toast.LENGTH_SHORT).show();
+        }
+        else if (id == R.id.action_change_route) {
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

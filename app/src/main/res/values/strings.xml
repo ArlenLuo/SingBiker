@@ -21,6 +21,8 @@
     <string name="action_remove_trip">Remove trip</string>
     <string name="action_edit_location">Edit location</string>
     <string name="action_delete_all">Delete all</string>
+    <string name="action_trip_info">Trip info</string>
+    <string name="action_change_route">Change route</string>
 
     <string name="individual_trip_textview_text"><u>Summary:</u>\nTotal distance:\n%1$.2f km\n\nAverage speed:\n%2$.2f km/h</string>
     
