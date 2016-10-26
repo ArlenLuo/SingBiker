@@ -78,7 +78,7 @@ public class IndividualRouteActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_edit_location) {
-            Toast.makeText(getApplicationContext(), "EDIT LOCATION", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
