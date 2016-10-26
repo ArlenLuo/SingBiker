@@ -1,6 +1,10 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -9,20 +13,52 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.maps.android.kml.KmlLayer;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
+import sg.ntu.dataminers.singbiker.control.IncidentManager;
+import sg.ntu.dataminers.singbiker.entity.Incident;
 import sg.ntu.dataminers.singbiker.entity.Point;
 import sg.ntu.dataminers.singbiker.entity.Route;
 import sg.ntu.dataminers.singbiker.entity.Trip;
 
 public class RoutePlotActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+    private GoogleMap mMap;
+    private PlaceAutocompleteFragment startSearchBar;
+    private PlaceAutocompleteFragment endSearchBar;
+    private Button plotButton;
+    private LatLng start;
+    private LatLng end;
+    private Marker startMarker;
+    private Marker endMarker;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,9 +74,11 @@ public class RoutePlotActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_route_plot);
         navigationView.setNavigationItemSelectedListener(this);
-
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
         // Set the "Plan route"-item as pre-selected.
         navigationView.setCheckedItem(R.id.nav_routeplanner);
+        initUI();
     }
 
     @Override
@@ -117,5 +155,164 @@ public class RoutePlotActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_route_plot);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+            mMap=googleMap;
+
+        LatLng singapore = new LatLng(1.3380694,103.9052101);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,11));
+        try{
+            KmlLayer kmlLayer = new KmlLayer(mMap, R.raw.pcn, getApplicationContext());
+            kmlLayer.addLayerToMap();
+        }catch(Exception e){
+
+        }
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                LatLng pos=marker.getPosition();
+                String loc=getLocation(pos);
+                if(marker.getTitle().equals("Start point")){
+                    start=marker.getPosition();
+                    startSearchBar.setText(loc);
+                    updateStartPoint();
+                }
+                else if(marker.getTitle().equals("End point")){
+                    end=marker.getPosition();
+                    endSearchBar.setText(loc);
+                    updateEndPoint();
+                }
+            }
+        });
+
+        GetData gd=new GetData();
+        gd.execute();
+    }
+    private void initUI(){
+        AutocompleteFilter filter=new AutocompleteFilter.Builder().setCountry("SG").build();
+        startSearchBar=(PlaceAutocompleteFragment)getFragmentManager().findFragmentById(R.id.startSearchBar);
+        startSearchBar.setHint("Enter start point");
+        startSearchBar.getView().setBackgroundColor(Color.WHITE);
+        startSearchBar.setOnPlaceSelectedListener(new PlaceSelectionListener(){
+            public void onPlaceSelected(Place p){
+                Log.d("bikertag",p.getName()+" ");
+                start=p.getLatLng();
+                updateStartPoint();
+            }
+            public void onError(Status s){
+
+            }
+        });
+        startSearchBar.setFilter(filter);
+        endSearchBar=(PlaceAutocompleteFragment)getFragmentManager().findFragmentById(R.id.endSearchBar);
+        endSearchBar.setHint("Enter end point");
+        endSearchBar.getView().setBackgroundColor(Color.WHITE);
+        endSearchBar.setOnPlaceSelectedListener(new PlaceSelectionListener(){
+            public void onPlaceSelected(Place p){
+                end=p.getLatLng();
+                updateEndPoint();
+            }
+            public void onError(Status s){
+
+            }
+        });
+        endSearchBar.setFilter(filter);
+        plotButton=(Button)findViewById(R.id.plotButton);
+        plotButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i=new Intent(RoutePlotActivity.this,IndividualRouteActivity.class);
+                i.putExtra("startLat",start.latitude);
+                i.putExtra("startLong",start.longitude);
+                i.putExtra("endLat",end.latitude);
+                i.putExtra("endLong",end.longitude);
+                startActivity(i);
+                Log.d("bikertag", ""+start.latitude);
+                Log.d("bikertag", ""+start.longitude);
+                Log.d("bikertag", ""+end.latitude);
+                Log.d("bikertag", ""+end.latitude);
+            }
+        });
+    }
+
+    private void updateStartPoint(){
+        if(startMarker!=null)
+            startMarker.remove();
+        MarkerOptions mo=new MarkerOptions();
+        mo.position(start);
+        mo.title("Start point");
+        mo.draggable(true);
+        startMarker=mMap.addMarker(mo);
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(start);
+        if(end!=null){
+            builder.include(end);
+            LatLngBounds bounds = builder.build();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+        }
+
+
+    }
+    private void updateEndPoint(){
+        if(endMarker!=null)
+            endMarker.remove();
+        MarkerOptions mo=new MarkerOptions();
+        mo.position(end);
+        mo.title("End point");
+        mo.draggable(true);
+        endMarker=mMap.addMarker(mo);
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        if(start!=null){
+            builder.include(start);
+            builder.include(end);
+            LatLngBounds bounds = builder.build();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+        }
+
+
+    }
+    class GetData extends AsyncTask<Void,Void,ArrayList<Incident>> {
+        protected ArrayList<Incident> doInBackground(Void... params){
+            IncidentManager im=new IncidentManager();
+            return im.getIncidents();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Incident> list) {
+            MarkerOptions mo=new MarkerOptions();
+            for (Incident i:list){
+                mo.position(new LatLng(i.getLocation().getLatitude(),i.getLocation().getLongitude()));
+                mo.title(i.getType());
+                mo.snippet(i.getDescription());
+                mo.icon(BitmapDescriptorFactory.fromResource(R.drawable.incident_icon));
+                mMap.addMarker(mo);
+            }
+        }
+    }
+
+    public String getLocation(LatLng ll){
+        String loc="";
+        List<Address> list;
+        Geocoder g=new Geocoder(RoutePlotActivity.this, Locale.getDefault());
+        try{
+            list=g.getFromLocation(ll.latitude,ll.longitude,1);
+            loc=list.get(0).getAddressLine(0);
+        }catch(Exception e){
+            Log.d("bikertag",e.toString());
+        }
+
+        return loc;
     }
 }
