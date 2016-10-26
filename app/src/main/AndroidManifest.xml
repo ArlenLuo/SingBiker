@@ -47,7 +47,10 @@
             android:label="@string/individual_route_actionbar_label"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <activity android:name=".boundary.TripActivity" />
+        <activity
+            android:name=".boundary.TripActivity"
+            android:label="@string/trip_actionbar_label"
+            android:theme="@style/AppTheme.NoActionBar" />
 
     </application>
 

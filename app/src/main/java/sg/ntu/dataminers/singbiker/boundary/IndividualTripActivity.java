@@ -115,6 +115,9 @@ public class IndividualTripActivity extends AppCompatActivity
 
         if (id == R.id.action_save_trip) {
             Toast.makeText(getApplicationContext(), "SAVE TRIP", Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(getApplicationContext(), TripActivity.class);
+            startActivity(intent);
         }
         else if (id == R.id.action_discard_trip) {
             Intent intent = new Intent(getApplicationContext(), RoutePlotActivity.class);

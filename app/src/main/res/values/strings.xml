@@ -4,6 +4,7 @@
     <string name="individual_route_actionbar_label">Choose route</string>
     <string name="individual_trip_actionbar_label">Trip information</string>
     <string name="history_actionbar_label">History</string>
+    <string name="trip_actionbar_label">Trip</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
