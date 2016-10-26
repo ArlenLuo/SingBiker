@@ -28,10 +28,6 @@ import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.entity.Trip;
 
-/*
-To be implemented by Viktor.
- */
-
 public class IndividualTripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
@@ -121,7 +117,8 @@ public class IndividualTripActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), "SAVE TRIP", Toast.LENGTH_SHORT).show();
         }
         else if (id == R.id.action_discard_trip) {
-            Toast.makeText(getApplicationContext(), "DISCARD TRIP", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getApplicationContext(), RoutePlotActivity.class);
+            startActivity(intent);
         }
         else if (id == R.id.action_remove_trip) {
             Toast.makeText(getApplicationContext(), "REMOVE TRIP", Toast.LENGTH_SHORT).show();
@@ -142,7 +139,8 @@ public class IndividualTripActivity extends AppCompatActivity
         } else if (id == R.id.nav_favorites) {
 
         } else if (id == R.id.nav_history) {
-
+            intent = new Intent(getApplicationContext(), HistoryActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_haze) {
 
         } else if (id == R.id.nav_settings) {
@@ -173,6 +171,8 @@ public class IndividualTripActivity extends AppCompatActivity
         bounds = builder.build();
 
         map.setOnMapLoadedCallback(this);
+
+        // MapManager.drawRoute(map, trip.getRouteCycled());
 
         map.getUiSettings().setMapToolbarEnabled(false);
     }
