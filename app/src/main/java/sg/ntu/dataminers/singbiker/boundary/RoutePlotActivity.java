@@ -40,10 +40,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.control.IncidentManager;
+import sg.ntu.dataminers.singbiker.control.MapManager;
+import sg.ntu.dataminers.singbiker.control.RouteManager;
 import sg.ntu.dataminers.singbiker.entity.Incident;
 import sg.ntu.dataminers.singbiker.entity.Point;
 import sg.ntu.dataminers.singbiker.entity.Route;
@@ -55,8 +58,10 @@ public class RoutePlotActivity extends AppCompatActivity
     private PlaceAutocompleteFragment startSearchBar;
     private PlaceAutocompleteFragment endSearchBar;
     private Button plotButton;
-    private LatLng start;
-    private LatLng end;
+    private LatLng start=new LatLng(1.4382776,103.7809787);
+    private LatLng end=new LatLng(1.4030314,103.7328157);
+//    private LatLng start;
+//    private LatLng end;
     private Marker startMarker;
     private Marker endMarker;
     @Override
@@ -79,6 +84,7 @@ public class RoutePlotActivity extends AppCompatActivity
         // Set the "Plan route"-item as pre-selected.
         navigationView.setCheckedItem(R.id.nav_routeplanner);
         initUI();
+
     }
 
     @Override
@@ -163,12 +169,8 @@ public class RoutePlotActivity extends AppCompatActivity
 
         LatLng singapore = new LatLng(1.3380694,103.9052101);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,11));
-        try{
-            KmlLayer kmlLayer = new KmlLayer(mMap, R.raw.pcn, getApplicationContext());
-            kmlLayer.addLayerToMap();
-        }catch(Exception e){
-
-        }
+        MapManager mm=new MapManager();
+        mm.drawPcnRoutes(mMap,RoutePlotActivity.this);
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) {
@@ -196,7 +198,6 @@ public class RoutePlotActivity extends AppCompatActivity
                 }
             }
         });
-
         GetData gd=new GetData();
         gd.execute();
     }
@@ -233,16 +234,39 @@ public class RoutePlotActivity extends AppCompatActivity
         plotButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i=new Intent(RoutePlotActivity.this,IndividualRouteActivity.class);
-                i.putExtra("startLat",start.latitude);
-                i.putExtra("startLong",start.longitude);
-                i.putExtra("endLat",end.latitude);
-                i.putExtra("endLong",end.longitude);
-                startActivity(i);
-                Log.d("bikertag", ""+start.latitude);
-                Log.d("bikertag", ""+start.longitude);
-                Log.d("bikertag", ""+end.latitude);
-                Log.d("bikertag", ""+end.latitude);
+                if(start==null || end==null){
+                    Toast.makeText(RoutePlotActivity.this,"Enter start and end points",Toast.LENGTH_LONG);
+                    return;
+                }
+                updateStartPoint();
+                updateEndPoint();
+                Log.d("bikertag", ""+start.toString());
+                Log.d("bikertag", ""+end.toString());
+                Intent intent=new Intent(RoutePlotActivity.this,IndividualRouteActivity.class);
+                RouteManager rm=new RouteManager(start,end);
+                rm.execute();
+                ArrayList<Route> list=null;
+                while(!rm.isDone()){
+                    try {
+                        Thread.sleep(100);
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                list=rm.getRoutes();//this is the list that needs to be passed to the next activity
+                Log.d("bikertag","The size of list sent == "+list.size());
+                intent.putParcelableArrayListExtra("rlist",list);
+                startActivity(intent);
+//                MapManager mm=new MapManager();
+//                Log.d("bikertag","list size :"+list.size());
+//                for(int i=0;i<list.size();i++){
+//                    Random r=new Random();
+//                    Route route=list.get(i);
+//                    Log.d("bikertag","drawing route");
+//                    mm.drawRoute(mMap,route,r.nextInt());
+//                }
+
             }
         });
     }

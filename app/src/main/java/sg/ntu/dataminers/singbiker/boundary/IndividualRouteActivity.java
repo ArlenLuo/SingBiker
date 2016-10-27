@@ -8,6 +8,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,7 +22,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 
+import java.util.ArrayList;
+
 import sg.ntu.dataminers.singbiker.R;
+import sg.ntu.dataminers.singbiker.entity.Route;
 
 public class IndividualRouteActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, AdapterView.OnItemClickListener {
@@ -55,6 +59,8 @@ public class IndividualRouteActivity extends AppCompatActivity
         listView.setAdapter(listAdapter);
         setListViewHeight();
         listView.setOnItemClickListener(this);
+        ArrayList<Route> list=getIntent().getParcelableArrayListExtra("rlist");
+        Log.d("bikertag","The size of list received == "+list.size());
     }
 
     @Override
