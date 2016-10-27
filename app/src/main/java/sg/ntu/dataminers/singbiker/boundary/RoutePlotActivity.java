@@ -109,10 +109,10 @@ public class RoutePlotActivity extends AppCompatActivity
         if (id == R.id.action_settings) {
 
             // The following is temporary!
-            Point testStart = new Point(1.351400, 103.685803);
-            Point testEnd = new Point(1.338785, 103.705700);
+            LatLng testStart = new LatLng(1.351400, 103.685803);
+            LatLng testEnd = new LatLng(1.338785, 103.705700);
 
-            Route testRoute = new Route(testStart, testEnd, "");
+            Route testRoute = new Route(testStart, testEnd);
             testRoute.setDistanceInMeters(10000);
 
             Trip testTrip = new Trip(testRoute);

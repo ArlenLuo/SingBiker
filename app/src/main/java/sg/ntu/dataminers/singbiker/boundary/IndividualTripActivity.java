@@ -160,8 +160,8 @@ public class IndividualTripActivity extends AppCompatActivity
 
         map = mapLocal;
 
-        LatLng latLngStart = new LatLng(trip.getRouteCycled().getPointStart().getLatitude(), trip.getRouteCycled().getPointStart().getLongitude());
-        LatLng latLngEnd = new LatLng(trip.getRouteCycled().getPointEnd().getLatitude(), trip.getRouteCycled().getPointEnd().getLongitude());
+        LatLng latLngStart = trip.getRouteCycled().getPointStart();
+        LatLng latLngEnd = trip.getRouteCycled().getPointEnd();
 
         Marker markerStart = map.addMarker(new MarkerOptions().position(latLngStart).draggable(false));
         Marker markerEnd = map.addMarker(new MarkerOptions().position(latLngEnd).draggable(false));

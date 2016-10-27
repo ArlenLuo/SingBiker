@@ -1,31 +1,32 @@
 package sg.ntu.dataminers.singbiker.entity;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class Route {
 
-    private Point pointStart;
-    private Point pointEnd;
-    private String waypoints;
+    private LatLng pointStart;
+    private LatLng pointEnd;
+    private LatLng[] waypoints;
     private double distanceInMeters;
 
-    public Route(Point startPoint, Point endPoint, String waypoints) {
+    public Route(LatLng startPoint, LatLng endPoint) {
         pointStart = startPoint;
         pointEnd = endPoint;
-        this.waypoints = waypoints;
     }
 
-    public Point getPointStart() {
+    public LatLng getPointStart() {
         return pointStart;
     }
 
-    public Point getPointEnd() {
+    public LatLng getPointEnd() {
         return pointEnd;
     }
 
-    public String getWaypoints() {
+    public LatLng[] getWaypoints() {
         return waypoints;
     }
 
-    public void setWaypoints(String waypoints) {
+    public void setWaypoints(LatLng[] waypoints) {
         this.waypoints = waypoints;
     }
 
