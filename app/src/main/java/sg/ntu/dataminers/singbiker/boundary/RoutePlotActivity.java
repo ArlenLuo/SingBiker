@@ -117,9 +117,16 @@ public class RoutePlotActivity extends AppCompatActivity
             // The following is temporary!
             LatLng testStart = new LatLng(1.351400, 103.685803);
             LatLng testEnd = new LatLng(1.338785, 103.705700);
+            LatLng testWaypoint1 = new LatLng(1.362381, 103.705002);
+            LatLng testWaypoint2 = new LatLng(1.323039, 103.679787);
+
+            List<LatLng> testList = new ArrayList<>();
+            testList.add(testWaypoint1);
+            testList.add(testWaypoint2);
 
             Route testRoute = new Route(testStart, testEnd);
             testRoute.setDistanceInMeters(10000);
+            testRoute.setWaypoints(testList);
 
             Trip testTrip = new Trip(testRoute);
             testTrip.setDateFinished(new Date(System.currentTimeMillis() + 3600000 * 3));
@@ -256,7 +263,7 @@ public class RoutePlotActivity extends AppCompatActivity
                 }
                 list=rm.getRoutes();//this is the list that needs to be passed to the next activity
                 Log.d("bikertag","The size of list sent == "+list.size());
-                intent.putParcelableArrayListExtra("rlist",list);
+                intent.putParcelableArrayListExtra(IntentConstants.CONSTANT_STRING_ROUTELIST, list);
                 startActivity(intent);
 //                MapManager mm=new MapManager();
 //                Log.d("bikertag","list size :"+list.size());

@@ -39,7 +39,6 @@
         map:uiZoomControls="true"
         map:uiCompass="false"
         map:uiRotateGestures="false"
-        map:uiTiltGestures="false"
-        />
+        map:uiTiltGestures="false" />
 
 </RelativeLayout>

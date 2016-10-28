@@ -1,5 +1,7 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -8,7 +10,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,23 +17,33 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Random;
 
+import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
+import sg.ntu.dataminers.singbiker.control.MapManager;
 import sg.ntu.dataminers.singbiker.entity.Route;
 
 public class IndividualRouteActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, AdapterView.OnItemClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
+        GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener, AdapterView.OnItemClickListener {
 
     private static final int maxNumberOfListItemsDisplayed = 4;
     private GoogleMap map;
     private ListView listView;
+    private ArrayList<Route> listOfRoutes;
+    private LatLngBounds bounds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +65,15 @@ public class IndividualRouteActivity extends AppCompatActivity
         mapFragment.getMapAsync(this);
 
         listView = (ListView) findViewById(R.id.individual_route_list);
-        String[] testValues = new String[] {"Listitem 1", "Listitem 2", "Listitem 3", "Listitem 4", "Listitem 5", "Listitem 6", "Listitem 7", "Listitem 8"};
-        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, testValues);
+        listOfRoutes = getIntent().getParcelableArrayListExtra(IntentConstants.CONSTANT_STRING_ROUTELIST);
+
+        // Extract the distances from each route and add them to a list.
+        ArrayList<Double> listOfDistances = createDistanceList();
+
+        ArrayAdapter<Double> listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, listOfDistances);
         listView.setAdapter(listAdapter);
         setListViewHeight();
         listView.setOnItemClickListener(this);
-        ArrayList<Route> list=getIntent().getParcelableArrayListExtra("rlist");
-        Log.d("bikertag","The size of list received == "+list.size());
     }
 
     @Override
@@ -96,7 +109,7 @@ public class IndividualRouteActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_routeplanner) {
-
+            finish();
         } else if (id == R.id.nav_favorites) {
 
         } else if (id == R.id.nav_history) {
@@ -114,13 +127,51 @@ public class IndividualRouteActivity extends AppCompatActivity
 
     @Override
     public void onMapReady(GoogleMap mapLocal) {
+
         map = mapLocal;
+
+        LatLng latLngStart = listOfRoutes.get(0).getPointStart();
+        LatLng latLngEnd = listOfRoutes.get(0).getPointEnd();
+
+        Marker markerStart = map.addMarker(new MarkerOptions().position(latLngStart).draggable(false));
+        Marker markerEnd = map.addMarker(new MarkerOptions().position(latLngEnd).draggable(false));
+
+        drawRoutes();
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+        builder.include(markerStart.getPosition());
+        builder.include(markerEnd.getPosition());
+
+        for (Route route : listOfRoutes) {
+            for (LatLng waypoint : route.getWaypoints()) {
+                builder.include(waypoint);
+            }
+        }
+
+        bounds = builder.build();
+
+        map.setOnMapLoadedCallback(this);
+        map.setOnMarkerClickListener(this);
+
+        map.getUiSettings().setMapToolbarEnabled(false);
+    }
+
+    @Override
+    public void onMapLoaded() {
+        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return true;
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String itemValue = (String) listView.getItemAtPosition(position);
-        Toast.makeText(getApplicationContext(), "Position: " + position + "\nValue: " + itemValue, Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getApplicationContext(), TripActivity.class);
+        intent.putExtra(IntentConstants.CONSTANT_STRING_ROUTE, listOfRoutes.get(position));
+        startActivity(intent);
     }
 
     private void setListViewHeight() {
@@ -136,6 +187,31 @@ public class IndividualRouteActivity extends AppCompatActivity
             params.height = (itemHeight * maxNumberOfListItemsDisplayed) + (dividerHeight * (maxNumberOfListItemsDisplayed - 1));
             listView.setLayoutParams(params);
             listView.requestLayout();
+        }
+    }
+
+    private ArrayList<Double> createDistanceList() {
+        double distanceInKMs;
+        ArrayList<Double> listOfDistances;
+
+        listOfDistances = new ArrayList<>();
+
+        for (Route route : listOfRoutes) {
+            distanceInKMs = route.getDistanceInMeters() / 1000;
+            listOfDistances.add(distanceInKMs);
+        }
+
+        return listOfDistances;
+    }
+
+    private void drawRoutes() {
+        int color;
+        Random random = new Random();
+        MapManager mapManager = new MapManager();
+
+        for (Route route : listOfRoutes) {
+            color = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
+            mapManager.drawRoute(map, route, color);
         }
     }
 }

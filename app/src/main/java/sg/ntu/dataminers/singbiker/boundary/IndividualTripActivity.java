@@ -1,6 +1,8 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -9,6 +11,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
+import sg.ntu.dataminers.singbiker.control.MapManager;
 import sg.ntu.dataminers.singbiker.entity.Trip;
 
 public class IndividualTripActivity extends AppCompatActivity
@@ -114,9 +118,10 @@ public class IndividualTripActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_save_trip) {
-            Toast.makeText(getApplicationContext(), "SAVE TRIP", Toast.LENGTH_SHORT).show();
 
-            Intent intent = new Intent(getApplicationContext(), TripActivity.class);
+            // Save trip in history here!
+
+            Intent intent = new Intent(getApplicationContext(), RoutePlotActivity.class);
             startActivity(intent);
         }
         else if (id == R.id.action_discard_trip) {
@@ -166,16 +171,21 @@ public class IndividualTripActivity extends AppCompatActivity
         Marker markerStart = map.addMarker(new MarkerOptions().position(latLngStart).draggable(false));
         Marker markerEnd = map.addMarker(new MarkerOptions().position(latLngEnd).draggable(false));
 
+        MapManager mapManager = new MapManager();
+        mapManager.drawRoute(map, trip.getRouteCycled(), Color.argb(255, 125, 125, 125));
+
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         builder.include(markerStart.getPosition());
         builder.include(markerEnd.getPosition());
 
+        for (LatLng waypoint : trip.getRouteCycled().getWaypoints()) {
+            builder.include(waypoint);
+        }
+
         bounds = builder.build();
 
         map.setOnMapLoadedCallback(this);
-
-        // MapManager.drawRoute(map, trip.getRouteCycled());
 
         map.getUiSettings().setMapToolbarEnabled(false);
     }

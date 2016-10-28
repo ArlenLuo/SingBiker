@@ -21,11 +21,16 @@ public class MapManager {
         po.width(10);
         po.color(color);
         List<LatLng> list=route.getWaypoints();
+
+        po.add(route.getPointStart());
+
         for (int i=0;i<list.size();i++){
             po.add(list.get(i));
         }
-        map.addPolyline(po);
 
+        po.add(route.getPointEnd());
+
+        map.addPolyline(po);
     }
 
     public void drawPcnRoutes(GoogleMap map,Context context){

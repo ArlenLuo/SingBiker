@@ -19,6 +19,7 @@
 
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
         android:name="com.google.android.gms.maps.MapFragment"
         android:id="@+id/individual_route_map_fragment"
 
@@ -26,6 +27,15 @@
         android:layout_width="match_parent"
 
         android:layout_alignParentTop="true"
-        android:layout_above="@id/individual_route_list" />
+        android:layout_above="@id/individual_route_list"
+
+        map:cameraTargetLat="1.290270"
+        map:cameraTargetLng="103.851959"
+        map:cameraZoom="10"
+        map:uiCompass="false"
+        map:uiZoomGestures="false"
+        map:uiScrollGestures="false"
+        map:uiRotateGestures="false"
+        map:uiTiltGestures="false" />
 
 </RelativeLayout>
