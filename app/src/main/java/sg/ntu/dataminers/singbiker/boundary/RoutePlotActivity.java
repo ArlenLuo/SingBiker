@@ -47,6 +47,7 @@ import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.control.IncidentManager;
 import sg.ntu.dataminers.singbiker.control.MapManager;
 import sg.ntu.dataminers.singbiker.control.RouteManager;
+import sg.ntu.dataminers.singbiker.control.SettingsManager;
 import sg.ntu.dataminers.singbiker.entity.Incident;
 import sg.ntu.dataminers.singbiker.entity.Point;
 import sg.ntu.dataminers.singbiker.entity.Route;
@@ -66,6 +67,9 @@ public class RoutePlotActivity extends AppCompatActivity
     private Marker endMarker;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        SettingsManager.loadSettings(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_plot);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_route_plot);

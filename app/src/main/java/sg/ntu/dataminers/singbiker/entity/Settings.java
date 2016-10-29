@@ -1,12 +1,10 @@
 package sg.ntu.dataminers.singbiker.entity;
 
-import android.graphics.Color;
-
 public class Settings {
 
     private static boolean unitSystemKM = true;
-    private static int colorPCN = Color.argb(255, 255, 0, 0);
-    private static int colorNonPCN = Color.argb(255, 125, 255, 255);
+    private static int colorPCN;
+    private static int colorNonPCN;
 
     public static boolean isUnitSystemKM() {
         return unitSystemKM;

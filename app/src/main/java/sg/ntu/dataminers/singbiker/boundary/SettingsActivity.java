@@ -16,6 +16,7 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import sg.ntu.dataminers.singbiker.R;
+import sg.ntu.dataminers.singbiker.control.SettingsManager;
 import sg.ntu.dataminers.singbiker.entity.Settings;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -87,6 +88,8 @@ public class SettingsActivity extends AppCompatActivity
 
             Settings.setColorPCN(colorPCN);
             Settings.setColorNonPCN(colorNonPCN);
+
+            SettingsManager.saveSettings(this);
 
             Toast.makeText(getApplicationContext(), "Settings saved", Toast.LENGTH_SHORT).show();
         }
