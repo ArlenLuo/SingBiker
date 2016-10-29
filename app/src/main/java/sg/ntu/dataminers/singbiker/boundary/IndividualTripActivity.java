@@ -152,7 +152,8 @@ public class IndividualTripActivity extends AppCompatActivity
         } else if (id == R.id.nav_haze) {
 
         } else if (id == R.id.nav_settings) {
-
+            intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_individual_trip);

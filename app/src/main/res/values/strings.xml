@@ -5,6 +5,7 @@
     <string name="individual_trip_actionbar_label">Trip information</string>
     <string name="history_actionbar_label">History</string>
     <string name="trip_actionbar_label">Trip</string>
+    <string name="settings_actionbar_label">Settings</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -25,6 +26,6 @@
     <string name="action_change_route">Change route</string>
 
     <string name="individual_trip_textview_text"><u>Summary:</u>\nTotal distance:\n%1$.2f km\n\nAverage speed:\n%2$.2f km/h</string>
-    
+
     <string name="history_textview_no_trips_text">No trips saved.\nCycle more!</string>
 </resources>
