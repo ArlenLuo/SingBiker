@@ -14,6 +14,7 @@ public class SettingsManager {
 
     private static SharedPreferences sharedPref;
 
+    /*
     public static void saveSettings(Context context) {
         sharedPref = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -32,4 +33,5 @@ public class SettingsManager {
         Settings.setColorPCN(sharedPref.getString(COLOR_PCN, null));
         Settings.setColorNonPCN(sharedPref.getString(COLOR_NON_PCN, null));
     }
+    */
 }

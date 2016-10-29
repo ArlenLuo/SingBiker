@@ -1,5 +1,6 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -69,6 +70,7 @@ public class HistoryActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+        Intent intent;
 
         if (id == R.id.nav_routeplanner) {
 
@@ -79,7 +81,8 @@ public class HistoryActivity extends AppCompatActivity
         } else if (id == R.id.nav_haze) {
 
         } else if (id == R.id.nav_settings) {
-
+            intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_history);

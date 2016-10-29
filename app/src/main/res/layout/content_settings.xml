@@ -7,6 +7,86 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="sg.ntu.dataminers.singbiker.boundary.SettingsActivity"
-    tools:showIn="@layout/app_bar_settings" >
+    tools:showIn="@layout/app_bar_settings"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/settings_textview_unit_system"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="@string/settings_textview_unit_system"
+        android:textSize="20sp" />
+
+    <RadioGroup
+        xmlns:android="http://schemas.android.com/apk/res/android"
+
+        android:id="@+id/settings_radiobutton_group"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+
+        android:layout_below="@id/settings_textview_unit_system" >
+
+        <RadioButton
+            android:id="@+id/settings_radiobutton_metric"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="@string/settings_radiobutton_metric" />
+
+        <RadioButton
+            android:id="@+id/settings_radiobutton_imperial"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="@string/settings_radiobutton_imperial" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/settings_textview_pcn_color"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+
+        android:layout_below="@id/settings_radiobutton_group"
+
+        android:text="@string/settings_textview_pcn_color"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/settings_button_pcn_color"
+
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="5dp"
+
+        android:layout_below="@id/settings_textview_pcn_color" />
+
+    <TextView
+        android:id="@+id/settings_textview_non_pcn_color"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+
+        android:layout_below="@id/settings_button_pcn_color"
+
+        android:text="@string/settings_textview_non_pcn_color"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/settings_button_non_pcn_color"
+
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="5dp"
+
+        android:layout_below="@id/settings_textview_non_pcn_color" />
 
 </RelativeLayout>

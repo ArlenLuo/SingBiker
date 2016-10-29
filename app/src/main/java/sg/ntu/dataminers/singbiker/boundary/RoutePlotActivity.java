@@ -149,11 +149,10 @@ public class RoutePlotActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        Intent intent;
 
         if (id == R.id.nav_routeplanner) {
-            // The following is temporary!
-            Intent i = new Intent(getApplicationContext(), IndividualRouteActivity.class);
-            startActivity(i);
+
         } else if (id == R.id.nav_favorites) {
 
         } else if (id == R.id.nav_history) {
@@ -162,7 +161,8 @@ public class RoutePlotActivity extends AppCompatActivity
         } else if (id == R.id.nav_haze) {
 
         } else if (id == R.id.nav_settings) {
-
+            intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_route_plot);

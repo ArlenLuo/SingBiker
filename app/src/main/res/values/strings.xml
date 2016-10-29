@@ -24,8 +24,16 @@
     <string name="action_delete_all">Delete all</string>
     <string name="action_trip_info">Trip info</string>
     <string name="action_change_route">Change route</string>
+    <string name="action_save_settings">Save settings</string>
+    <string name="action_discard_settings">Discard settings</string>
 
     <string name="individual_trip_textview_text"><u>Summary:</u>\nTotal distance:\n%1$.2f km\n\nAverage speed:\n%2$.2f km/h</string>
 
     <string name="history_textview_no_trips_text">No trips saved.\nCycle more!</string>
+
+    <string name="settings_textview_unit_system">Unit system:</string>
+    <string name="settings_radiobutton_metric">Metric (km)</string>
+    <string name="settings_radiobutton_imperial">Imperial (mile)</string>
+    <string name="settings_textview_pcn_color">PCN Color:</string>
+    <string name="settings_textview_non_pcn_color">Non-PCN Color:</string>
 </resources>
