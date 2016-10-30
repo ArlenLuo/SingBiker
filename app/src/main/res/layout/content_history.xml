@@ -20,4 +20,9 @@
         android:text="@string/history_textview_no_trips_text"
         android:textSize="30sp" />
 
+    <ListView
+        android:id="@+id/listViewHistory"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></ListView>
+
 </RelativeLayout>

@@ -20,4 +20,20 @@ public class HistoryManager {
         return historyList.remove(h);
     }
 
+    public ArrayList<History> getHistoryList() {
+        return historyList;
+    }
+
+    public boolean checkEmpty() {
+        return historyList.isEmpty();
+    }
+
+    public int getListSize() {
+        return historyList.size();
+    }
+
+    public History getElem(int index) {
+        return historyList.get(index);
+    }
+
 }

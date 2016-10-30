@@ -22,6 +22,8 @@
     <string name="action_remove_trip">Remove trip</string>
     <string name="action_edit_location">Edit location</string>
     <string name="action_delete_all">Delete all</string>
+    <string name="enter_delete">Enter deletion</string>
+    <string name="select_all">Select all</string>
     <string name="action_trip_info">Trip info</string>
     <string name="action_change_route">Change route</string>
     <string name="action_save_settings">Save settings</string>
