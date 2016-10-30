@@ -1,73 +1,134 @@
 package sg.ntu.dataminers.singbiker.entity;
 
+import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Trip implements Parcelable {
 
     private Date dateStarted;
+    private Date datePauseHelper;
     private Date dateFinished;
+    private long totalTimeCycled;
+    private double totalDistanceCycled;
     private Route routeSystemGenerated;
     private Route routeCycled;
     private double averageSpeed;
     private int numberOfPauses;
 
     public Trip(Route systemGeneratedRoute) {
-        dateStarted = new Date();
-        routeSystemGenerated = systemGeneratedRoute;
+        this.routeSystemGenerated = systemGeneratedRoute;
         averageSpeed = -1;
         numberOfPauses = 0;
+        totalTimeCycled = 0;
+    }
+
+    public void beginCycling(LatLng currentPosition) {
+        routeCycled = new Route(currentPosition, currentPosition);
+        routeCycled.setWaypoints(new ArrayList<LatLng>());
+
+        dateStarted = new Date();
+        continueCycling();
+    }
+
+    public void continueCycling() {
+        datePauseHelper = new Date();
+    }
+
+    public void pauseCycling(LatLng newWaypoint) {
+        long timeSinceLastPause = new Date().getTime() - datePauseHelper.getTime();
+        totalTimeCycled += timeSinceLastPause;
+
+        updateRouteCycled(newWaypoint);
+
+        calculateRouteCycledDistance();
+        calculateAverageSpeed();
+    }
+
+    public void finishedCycling() {
+        dateFinished = new Date();
+    }
+
+    public void updateRouteCycled(LatLng newWaypoint) {
+        LatLng pointStart = routeCycled.getPointStart();
+        LatLng pointEnd = routeCycled.getPointEnd();
+        List<LatLng> listOfWaypoints = routeCycled.getWaypoints();
+
+        routeCycled = new Route(pointStart, newWaypoint);
+        listOfWaypoints.add(pointEnd);
+        routeCycled.setWaypoints(listOfWaypoints);
+    }
+
+    public void calculateRouteCycledDistance() {
+
+        totalDistanceCycled = 0;
+        float[] results = new float[3];
+
+        List<LatLng> list = routeCycled.getWaypoints();
+
+        if (!list.isEmpty()) {
+            Location.distanceBetween(routeCycled.getPointStart().latitude, routeCycled.getPointStart().longitude, list.get(0).latitude, list.get(0).longitude, results);
+            totalDistanceCycled += results[0];
+
+            for (int i = 1; i < list.size(); i++) {
+                Location.distanceBetween(list.get(i - 1).latitude, list.get(i - 1).longitude, list.get(i).latitude, list.get(i).longitude, results);
+                totalDistanceCycled += results[0];
+            }
+
+            Location.distanceBetween(list.get(list.size() - 1).latitude, list.get(list.size() - 1).longitude, routeCycled.getPointEnd().latitude, routeCycled.getPointEnd().longitude, results);
+            totalDistanceCycled += results[0];
+        }
+        else {
+            Location.distanceBetween(routeCycled.getPointStart().latitude, routeCycled.getPointEnd().longitude, routeCycled.getPointEnd().latitude, routeCycled.getPointEnd().longitude, results);
+            totalDistanceCycled += results[0];
+        }
     }
 
     public Date getDateStarted() {
         return dateStarted;
     }
 
-    public Date getDateFinished() {
-        return dateFinished;
-    }
-
-    public void setDateFinished(Date dateFinished) {
-        this.dateFinished = dateFinished;
+    public Route getRouteCycled() {
+        return routeCycled;
     }
 
     public Route getRouteSystemGenerated() {
         return routeSystemGenerated;
     }
 
-    public Route getRouteCycled() {
-        return routeCycled;
-    }
-
-    public void setRouteCycled(Route routeCycled) {
-        this.routeCycled = routeCycled;
-    }
-
-    public double getAverageSpeed() {
-        return averageSpeed;
-    }
-
     public void calculateAverageSpeed() {
-        double distanceInKMs = routeCycled.getDistanceInMeters() / 1000;
-        double timeInMilliSec = Long.valueOf(dateFinished.getTime() - dateStarted.getTime()).doubleValue();
-        double timeInHours = timeInMilliSec / (1000 * 60 * 60);
+        averageSpeed = (totalDistanceCycled / 1000) / milliSecToHours(totalTimeCycled);
+    }
 
-        averageSpeed = distanceInKMs / timeInHours;
+    public double milliSecToHours(long milliSec) {
+
+        double seconds = (milliSec / 1000) % 60 ;
+        double minutes = ((milliSec / (1000*60)) % 60);
+        double hours   = ((milliSec / (1000*60*60)) % 24);
+
+        return (hours + (minutes / 60) + (seconds / 60 / 60));
     }
 
     public int getNumberOfPauses() {
         return numberOfPauses;
     }
 
-    public void setNumberOfPauses(int numberOfPauses) {
-        this.numberOfPauses = numberOfPauses;
+    public double getDistance() {
+        return totalDistanceCycled;
     }
 
-    // Method needed when implementing the Parcelable interface.
+    public Date getDateFinished() {
+        return dateFinished;
+    }
+
+    // Methods needed when implementing the Parcelable interface.
     @Override
     public int describeContents() {
         return 0;

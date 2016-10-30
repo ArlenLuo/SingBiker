@@ -1,6 +1,5 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -11,7 +10,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -71,8 +69,8 @@ public class IndividualTripActivity extends AppCompatActivity
             // Set TextView-text.
             String text = getString(R.string.individual_trip_textview_text);
             double distanceInKM = trip.getRouteCycled().getDistanceInMeters() / 1000;
-            double averageSpeed = trip.getAverageSpeed();
-            textView.setText(String.format(text, distanceInKM, averageSpeed));
+            //double averageSpeed = trip.getAverageSpeed();
+            //textView.setText(String.format(text, distanceInKM, averageSpeed));
         }
         else {
             textView.setVisibility(View.GONE);
@@ -172,8 +170,7 @@ public class IndividualTripActivity extends AppCompatActivity
         Marker markerStart = map.addMarker(new MarkerOptions().position(latLngStart).draggable(false));
         Marker markerEnd = map.addMarker(new MarkerOptions().position(latLngEnd).draggable(false));
 
-        MapManager mapManager = new MapManager();
-        mapManager.drawRoute(map, trip.getRouteCycled(), Color.argb(255, 125, 125, 125));
+        MapManager.drawRoute(map, trip.getRouteCycled(), Color.argb(255, 125, 125, 125));
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
@@ -193,7 +190,7 @@ public class IndividualTripActivity extends AppCompatActivity
 
     @Override
     public void onMapLoaded() {
-        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+        map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
     }
 
     private void checkPreconditions(int callingActivity, Trip trip) {

@@ -118,6 +118,7 @@ public class RoutePlotActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
 
+            /*
             // The following is temporary!
             LatLng testStart = new LatLng(1.351400, 103.685803);
             LatLng testEnd = new LatLng(1.338785, 103.705700);
@@ -141,6 +142,7 @@ public class RoutePlotActivity extends AppCompatActivity
             i.putExtra(IntentConstants.CONSTANT_STRING_CALLINGACTIVITY, IntentConstants.CONSTANT_INT_ROUTEPLOTACTIVITY);
             i.putExtra(IntentConstants.CONSTANT_STRING_TRIP, testTrip);
             startActivity(i);
+            */
 
             return true;
         }
@@ -180,8 +182,7 @@ public class RoutePlotActivity extends AppCompatActivity
 
         LatLng singapore = new LatLng(1.3380694,103.9052101);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,11));
-        MapManager mm=new MapManager();
-        mm.drawPcnRoutes(mMap,RoutePlotActivity.this);
+        MapManager.drawPcnRoutes(mMap,RoutePlotActivity.this);
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) {
@@ -269,13 +270,12 @@ public class RoutePlotActivity extends AppCompatActivity
                 Log.d("bikertag","The size of list sent == "+list.size());
                 intent.putParcelableArrayListExtra(IntentConstants.CONSTANT_STRING_ROUTELIST, list);
                 startActivity(intent);
-//                MapManager mm=new MapManager();
 //                Log.d("bikertag","list size :"+list.size());
 //                for(int i=0;i<list.size();i++){
 //                    Random r=new Random();
 //                    Route route=list.get(i);
 //                    Log.d("bikertag","drawing route");
-//                    mm.drawRoute(mMap,route,r.nextInt());
+//                    MapManager.drawRoute(mMap,route,r.nextInt());
 //                }
 
             }

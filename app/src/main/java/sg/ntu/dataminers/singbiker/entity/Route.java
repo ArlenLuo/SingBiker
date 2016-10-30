@@ -5,7 +5,6 @@ import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Route implements Parcelable{

@@ -209,11 +209,10 @@ public class IndividualRouteActivity extends AppCompatActivity
     private void drawRoutes() {
         int color;
         Random random = new Random();
-        MapManager mapManager = new MapManager();
 
         for (Route route : listOfRoutes) {
             color = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
-            mapManager.drawRoute(map, route, color);
+            MapManager.drawRoute(map, route, color);
         }
     }
 }

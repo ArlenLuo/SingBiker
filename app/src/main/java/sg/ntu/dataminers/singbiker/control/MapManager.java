@@ -16,7 +16,7 @@ import sg.ntu.dataminers.singbiker.entity.Route;
 
 public class MapManager {
 
-    public void drawRoute(GoogleMap map, Route route,int color) {
+    public static void drawRoute(GoogleMap map, Route route,int color) {
         PolylineOptions po=new PolylineOptions();
         po.width(10);
         po.color(color);
@@ -33,7 +33,7 @@ public class MapManager {
         map.addPolyline(po);
     }
 
-    public void drawPcnRoutes(GoogleMap map,Context context){
+    public static void drawPcnRoutes(GoogleMap map,Context context){
         try{
             KmlLayer kmlLayer = new KmlLayer(map, R.raw.pcn, context);
             kmlLayer.addLayerToMap();
