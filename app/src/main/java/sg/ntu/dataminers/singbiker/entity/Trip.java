@@ -97,12 +97,7 @@ public class Trip implements Parcelable {
     }
 
     private void calculateAverageSpeed() {
-        if (Settings.isUnitSystemKM()) {
-            averageSpeed = (totalDistanceCycled / 1000) / milliSecToHours(totalTimeCycled);
-        }
-        else {
-            averageSpeed = ((totalDistanceCycled / 1000) / milliSecToHours(totalTimeCycled)) * 1.609344;
-        }
+        averageSpeed = (totalDistanceCycled / 1000) / milliSecToHours(totalTimeCycled);
     }
 
     private double milliSecToHours(long milliSec) {
@@ -130,24 +125,12 @@ public class Trip implements Parcelable {
         return routeCycled;
     }
 
-    /*
-     * Returns distance in km if unit system is set to metric.
-     * Returns distance in miles if unit system is set to imperial.
-     */
+    // Returns distance in kilometers.
     public double getTotalDistanceCycled() {
-        if (Settings.isUnitSystemKM()) {
-            return (totalDistanceCycled / 1000);
-        }
-        else {
-            return ((totalDistanceCycled / 1000) * 0.62137119);
-        }
+        return (totalDistanceCycled / 1000);
     }
 
-
-    /*
-     * Returns average speed in km/h if unit system is set to metric.
-     * Returns average speed in mph if unit system is set to imperial.
-     */
+    // Returns average speed in km/h.
     public double getAverageSpeed() {
         return averageSpeed;
     }

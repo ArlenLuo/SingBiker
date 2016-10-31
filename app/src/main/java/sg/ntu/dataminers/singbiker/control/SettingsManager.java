@@ -23,7 +23,7 @@ public class SettingsManager {
         sharedPref = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
-        editor.putBoolean(UNIT_SYSTEM, Settings.isUnitSystemKM());
+        editor.putBoolean(UNIT_SYSTEM, Settings.isUnitSystemMetric());
         editor.putInt(COLOR_PCN, Settings.getColorPCN());
         editor.putInt(COLOR_NON_PCN, Settings.getColorNonPCN());
 
@@ -36,5 +36,13 @@ public class SettingsManager {
         Settings.setUnitSystem(sharedPref.getBoolean(UNIT_SYSTEM, DEFAULT_UNIT_SYSTEM));
         Settings.setColorPCN(sharedPref.getInt(COLOR_PCN, DEFAULT_COLOR_PCN));
         Settings.setColorNonPCN(sharedPref.getInt(COLOR_NON_PCN, DEFAULT_COLOR_NON_PCN));
+    }
+
+    public static double kmToMile(double kilometers) {
+        return (kilometers * 0.621371);
+    }
+
+    public static double kmhToMph(double kmh) {
+        return (kmh * 0.621371);
     }
 }

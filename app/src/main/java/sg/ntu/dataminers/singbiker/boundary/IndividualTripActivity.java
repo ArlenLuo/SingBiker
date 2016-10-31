@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.control.MapManager;
+import sg.ntu.dataminers.singbiker.control.SettingsManager;
 import sg.ntu.dataminers.singbiker.entity.Settings;
 import sg.ntu.dataminers.singbiker.entity.Trip;
 
@@ -72,10 +73,12 @@ public class IndividualTripActivity extends AppCompatActivity
             double distance = trip.getTotalDistanceCycled();
             double averageSpeed = trip.getAverageSpeed();
 
-            if (Settings.isUnitSystemKM()) {
+            if (Settings.isUnitSystemMetric()) {
                 textView.setText(String.format(text, distance, averageSpeed, "km", "km/h"));
             }
             else {
+                distance = SettingsManager.kmToMile(distance);
+                averageSpeed = SettingsManager.kmhToMph(averageSpeed);
                 textView.setText(String.format(text, distance, averageSpeed, "miles", "mph"));
             }
         }

@@ -27,7 +27,7 @@ public class SettingsActivity extends AppCompatActivity
     private RadioButton radioButtonImperial;
     private Button buttonPCNColor;
     private Button buttonNonPCNColor;
-    private boolean unitSystemKM;
+    private boolean unitSystemMetric;
     private int colorPCN;
     private int colorNonPCN;
 
@@ -48,7 +48,7 @@ public class SettingsActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_settings);
 
-        unitSystemKM = Settings.isUnitSystemKM();
+        unitSystemMetric = Settings.isUnitSystemMetric();
         colorPCN = Settings.getColorPCN();
         colorNonPCN = Settings.getColorNonPCN();
 
@@ -131,7 +131,7 @@ public class SettingsActivity extends AppCompatActivity
 
     private void fillUIComponentsWithSettings() {
 
-        if (unitSystemKM) {
+        if (unitSystemMetric) {
             radioButtonMetric.setChecked(true);
         }
         else {
