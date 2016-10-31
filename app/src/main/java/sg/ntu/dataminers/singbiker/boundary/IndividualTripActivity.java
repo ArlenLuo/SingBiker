@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.control.MapManager;
+import sg.ntu.dataminers.singbiker.entity.Settings;
 import sg.ntu.dataminers.singbiker.entity.Trip;
 
 public class IndividualTripActivity extends AppCompatActivity
@@ -68,9 +69,15 @@ public class IndividualTripActivity extends AppCompatActivity
 
             // Set TextView-text.
             String text = getString(R.string.individual_trip_textview_text);
-            double distanceInKM = trip.getRouteCycled().getDistanceInMeters() / 1000;
-            //double averageSpeed = trip.getAverageSpeed();
-            //textView.setText(String.format(text, distanceInKM, averageSpeed));
+            double distance = trip.getTotalDistanceCycled();
+            double averageSpeed = trip.getAverageSpeed();
+
+            if (Settings.isUnitSystemKM()) {
+                textView.setText(String.format(text, distance, averageSpeed, "km", "km/h"));
+            }
+            else {
+                textView.setText(String.format(text, distance, averageSpeed, "miles", "mph"));
+            }
         }
         else {
             textView.setVisibility(View.GONE);
@@ -99,7 +106,7 @@ public class IndividualTripActivity extends AppCompatActivity
             getMenuInflater().inflate(R.menu.individual_trip, menu);
 
             // Hide action buttons that shouldn't be used.
-            if (callingActivity == IntentConstants.CONSTANT_INT_ROUTEPLOTACTIVITY) {
+            if (callingActivity == IntentConstants.CONSTANT_INT_TRIPACTIVITY) {
                 menu.findItem(R.id.action_remove_trip).setVisible(false);
             }
             else if (callingActivity == IntentConstants.CONSTANT_INT_HISTORYLISTACTIVITY) {
@@ -118,9 +125,6 @@ public class IndividualTripActivity extends AppCompatActivity
         if (id == R.id.action_save_trip) {
 
             // Save trip in history here!
-
-            Intent intent = new Intent(getApplicationContext(), RoutePlotActivity.class);
-            startActivity(intent);
         }
         else if (id == R.id.action_discard_trip) {
             Intent intent = new Intent(getApplicationContext(), RoutePlotActivity.class);

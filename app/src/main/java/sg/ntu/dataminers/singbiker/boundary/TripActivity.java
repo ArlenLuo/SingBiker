@@ -50,6 +50,10 @@ import static sg.ntu.dataminers.singbiker.R.menu.trip;
 public class TripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, SeekBar.OnSeekBarChangeListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
+    private static final int distanceToDestinationFinished = 8000;
+    private static final int updateRatePreferred = 10000;
+    private static final int updateRateFastest = 5000;
+
     private GoogleMap map;
     private LatLngBounds bounds;
     private Route systemGeneratedRoute;
@@ -228,49 +232,50 @@ public class TripActivity extends AppCompatActivity
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-        if (progress == 100) {
+        if ((progress == 100) && (!userCycling)) {
 
-            if (!userCycling) {
-
-                if (!userHasStarted) {
-                    currentTrip.beginCycling(userCurrentPosition);
-                    markerCurrent = map.addMarker(new MarkerOptions().position(userCurrentPosition).draggable(false));
-                    userHasStarted = true;
-                }
-                else {
-                    currentTrip.continueCycling();
-                }
-
-                startLocationUpdates();
-
-                Toast.makeText(getApplicationContext(), "Start!", Toast.LENGTH_SHORT).show();
-                userCycling = true;
+            if (!userHasStarted) {
+                currentTrip.beginCycling(userCurrentPosition);
+                markerCurrent = map.addMarker(new MarkerOptions().position(userCurrentPosition).draggable(false));
+                userHasStarted = true;
             }
+            else {
+                currentTrip.continueCycling();
+            }
+
+            startLocationUpdates();
+
+            Toast.makeText(getApplicationContext(), "Start!", Toast.LENGTH_SHORT).show();
+            userCycling = true;
         }
-        else if (progress == 0) {
+        else if ((progress == 0) && (userCycling)) {
 
-            if (userCycling) {
+            float[] results = new float[3];
 
-                float[] results = new float[3];
+            LatLng pos = currentTrip.getRouteCycled().getPointEnd();
+            LatLng target = currentTrip.getRouteSystemGenerated().getPointEnd();
 
-                LatLng pos = currentTrip.getRouteCycled().getPointEnd();
-                LatLng target = currentTrip.getRouteSystemGenerated().getPointEnd();
+            Location.distanceBetween(pos.latitude, pos.longitude, target.latitude, target.longitude, results);
+            float distanceToDestinaition = results[0];
 
-                Location.distanceBetween(pos.latitude, pos.longitude, target.latitude, target.longitude, results);
-                float distanceToDestinaition = results[0];
-
-                if (distanceToDestinaition < 20) {
-                    currentTrip.finishedCycling();
-                }
-                else {
-                    currentTrip.pauseCycling(userCurrentPosition);
-                }
+            if (distanceToDestinaition < distanceToDestinationFinished) {
+                currentTrip.finishedCycling(userCurrentPosition);
 
                 stopLocationUpdates();
 
-                Toast.makeText(getApplicationContext(), "Stop!", Toast.LENGTH_SHORT).show();
-                userCycling = false;
+                Intent intent = new Intent(getApplicationContext(), IndividualTripActivity.class);
+                intent.putExtra(IntentConstants.CONSTANT_STRING_CALLINGACTIVITY, IntentConstants.CONSTANT_INT_TRIPACTIVITY);
+                intent.putExtra(IntentConstants.CONSTANT_STRING_TRIP, currentTrip);
+                startActivity(intent);
             }
+            else {
+                currentTrip.pauseCycling(userCurrentPosition);
+            }
+
+            stopLocationUpdates();
+
+            Toast.makeText(getApplicationContext(), "Stop!", Toast.LENGTH_SHORT).show();
+            userCycling = false;
         }
     }
 
@@ -303,8 +308,8 @@ public class TripActivity extends AppCompatActivity
     protected LocationRequest createLocationRequest() {
         LocationRequest locationRequest = new LocationRequest();
 
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(5000);
+        locationRequest.setInterval(updateRatePreferred);
+        locationRequest.setFastestInterval(updateRateFastest);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         return locationRequest;
@@ -338,8 +343,6 @@ public class TripActivity extends AppCompatActivity
         map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 200));
 
         MapManager.drawRoute(map, currentTrip.getRouteCycled(), Settings.getColorNonPCN());
-
-        Toast.makeText(getApplicationContext(), "Update!", Toast.LENGTH_SHORT).show();
     }
 }
 

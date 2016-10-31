@@ -16,10 +16,10 @@ public class Trip implements Parcelable {
     private Date dateStarted;
     private Date datePauseHelper;
     private Date dateFinished;
-    private long totalTimeCycled;
-    private double totalDistanceCycled;
     private Route routeSystemGenerated;
     private Route routeCycled;
+    private double totalDistanceCycled;
+    private long totalTimeCycled;
     private double averageSpeed;
     private int numberOfPauses;
 
@@ -50,10 +50,15 @@ public class Trip implements Parcelable {
 
         calculateRouteCycledDistance();
         calculateAverageSpeed();
+
+        numberOfPauses++;
     }
 
-    public void finishedCycling() {
+    public void finishedCycling(LatLng newWaypoint) {
+        pauseCycling(newWaypoint);
         dateFinished = new Date();
+
+        numberOfPauses--;
     }
 
     public void updateRouteCycled(LatLng newWaypoint) {
@@ -66,7 +71,7 @@ public class Trip implements Parcelable {
         routeCycled.setWaypoints(listOfWaypoints);
     }
 
-    public void calculateRouteCycledDistance() {
+    private void calculateRouteCycledDistance() {
 
         totalDistanceCycled = 0;
         float[] results = new float[3];
@@ -91,23 +96,16 @@ public class Trip implements Parcelable {
         }
     }
 
-    public Date getDateStarted() {
-        return dateStarted;
+    private void calculateAverageSpeed() {
+        if (Settings.isUnitSystemKM()) {
+            averageSpeed = (totalDistanceCycled / 1000) / milliSecToHours(totalTimeCycled);
+        }
+        else {
+            averageSpeed = ((totalDistanceCycled / 1000) / milliSecToHours(totalTimeCycled)) * 1.609344;
+        }
     }
 
-    public Route getRouteCycled() {
-        return routeCycled;
-    }
-
-    public Route getRouteSystemGenerated() {
-        return routeSystemGenerated;
-    }
-
-    public void calculateAverageSpeed() {
-        averageSpeed = (totalDistanceCycled / 1000) / milliSecToHours(totalTimeCycled);
-    }
-
-    public double milliSecToHours(long milliSec) {
+    private double milliSecToHours(long milliSec) {
 
         double seconds = (milliSec / 1000) % 60 ;
         double minutes = ((milliSec / (1000*60)) % 60);
@@ -116,16 +114,46 @@ public class Trip implements Parcelable {
         return (hours + (minutes / 60) + (seconds / 60 / 60));
     }
 
-    public int getNumberOfPauses() {
-        return numberOfPauses;
-    }
-
-    public double getDistance() {
-        return totalDistanceCycled;
+    public Date getDateStarted() {
+        return dateStarted;
     }
 
     public Date getDateFinished() {
         return dateFinished;
+    }
+
+    public Route getRouteSystemGenerated() {
+        return routeSystemGenerated;
+    }
+
+    public Route getRouteCycled() {
+        return routeCycled;
+    }
+
+    /*
+     * Returns distance in km if unit system is set to metric.
+     * Returns distance in miles if unit system is set to imperial.
+     */
+    public double getTotalDistanceCycled() {
+        if (Settings.isUnitSystemKM()) {
+            return (totalDistanceCycled / 1000);
+        }
+        else {
+            return ((totalDistanceCycled / 1000) * 0.62137119);
+        }
+    }
+
+
+    /*
+     * Returns average speed in km/h if unit system is set to metric.
+     * Returns average speed in mph if unit system is set to imperial.
+     */
+    public double getAverageSpeed() {
+        return averageSpeed;
+    }
+
+    public int getNumberOfPauses() {
+        return numberOfPauses;
     }
 
     // Methods needed when implementing the Parcelable interface.
@@ -141,8 +169,8 @@ public class Trip implements Parcelable {
         parcelOut.writeString(gson.toJson(dateFinished));
         parcelOut.writeString(gson.toJson(routeSystemGenerated));
         parcelOut.writeString(gson.toJson(routeCycled));
+        parcelOut.writeDouble(totalDistanceCycled);
         parcelOut.writeDouble(averageSpeed);
-        parcelOut.writeInt(numberOfPauses);
     }
 
     public static final Parcelable.Creator<Trip> CREATOR = new Parcelable.Creator<Trip>() {
@@ -161,7 +189,7 @@ public class Trip implements Parcelable {
         dateFinished = gson.fromJson(parcelIn.readString(), Date.class);
         routeSystemGenerated = gson.fromJson(parcelIn.readString(), Route.class);
         routeCycled = gson.fromJson(parcelIn.readString(), Route.class);
+        totalDistanceCycled = parcelIn.readDouble();
         averageSpeed = parcelIn.readDouble();
-        numberOfPauses = parcelIn.readInt();
     }
 }
