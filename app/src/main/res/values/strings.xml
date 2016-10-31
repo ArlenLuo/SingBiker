@@ -31,6 +31,10 @@
 
     <string name="individual_trip_textview_text"><u>Summary:</u>\nTotal distance:\n%1$.2f %3$s\n\nAverage speed:\n%2$.2f %4$s</string>
 
+    <string name="trip_dialog_title">Trip info</string>
+    <string name="trip_dialog_message">Total distance:\n%1$.2f %3$s\n\nAverage speed:\n%2$.2f %4$s</string>
+    <string name="trip_dialog_button_text">OK</string>
+
     <string name="history_textview_no_trips_text">No trips saved.\nCycle more!</string>
 
     <string name="settings_textview_unit_system">Unit system:</string>

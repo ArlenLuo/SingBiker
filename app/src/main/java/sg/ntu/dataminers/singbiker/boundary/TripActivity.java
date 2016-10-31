@@ -1,5 +1,7 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
@@ -32,6 +34,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -40,6 +43,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.control.MapManager;
+import sg.ntu.dataminers.singbiker.control.SettingsManager;
 import sg.ntu.dataminers.singbiker.entity.Route;
 import sg.ntu.dataminers.singbiker.entity.Settings;
 import sg.ntu.dataminers.singbiker.entity.Trip;
@@ -49,20 +53,20 @@ import static sg.ntu.dataminers.singbiker.R.menu.trip;
 public class TripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, SeekBar.OnSeekBarChangeListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private static final int distanceToDestinationFinished = 9000;
+    private static final int distanceInMetersToDestinationFinished = 9000;
     private static final int updateRatePreferred = 10000;
     private static final int updateRateFastest = 5000;
-
-    private GoogleMap map;
-    private LatLngBounds bounds;
-    private Route systemGeneratedRoute;
-    private boolean userCycling = false;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest locationRequest;
-    private LatLng userCurrentPosition;
-    private boolean userHasStarted = false;
-    private Trip currentTrip;
+    private GoogleMap map;
+    private LatLngBounds bounds;
     private Marker markerCurrent;
+    private LatLng userCurrentPosition;
+    private Route systemGeneratedRoute;
+    private Trip currentTrip;
+    private boolean userCycling = false;
+    private boolean userHasStarted = false;
+    private MenuItem infoButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +158,9 @@ public class TripActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(trip, menu);
+
+        infoButton = menu.findItem(R.id.action_trip_info);
+
         return true;
     }
 
@@ -162,7 +169,33 @@ public class TripActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_trip_info) {
-            Toast.makeText(getApplicationContext(), "TRIP INFO", Toast.LENGTH_SHORT).show();
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+            String text = getString(R.string.trip_dialog_message);
+            double distance = currentTrip.getTotalDistanceCycled();
+            double averageSpeed = currentTrip.getAverageSpeed();
+
+            if (Settings.isUnitSystemMetric()) {
+                text = String.format(text, distance, averageSpeed, "km", "km/h");
+            }
+            else {
+                distance = SettingsManager.kmToMile(distance);
+                averageSpeed = SettingsManager.kmhToMph(averageSpeed);
+                text = String.format(text, distance, averageSpeed, "miles", "mph");
+            }
+
+            alertDialogBuilder.setTitle(R.string.trip_dialog_title);
+            alertDialogBuilder.setMessage(text);
+
+            alertDialogBuilder.setNegativeButton(R.string.trip_dialog_button_text, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
         }
         else if (id == R.id.action_change_route) {
             finish();
@@ -235,7 +268,7 @@ public class TripActivity extends AppCompatActivity
 
             if (!userHasStarted) {
                 currentTrip.beginCycling(userCurrentPosition);
-                markerCurrent = map.addMarker(new MarkerOptions().position(userCurrentPosition).draggable(false));
+                markerCurrent = map.addMarker(new MarkerOptions().position(userCurrentPosition).draggable(false).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_trip_person_pin)));
                 userHasStarted = true;
             }
             else {
@@ -245,6 +278,7 @@ public class TripActivity extends AppCompatActivity
             startLocationUpdates();
 
             Toast.makeText(getApplicationContext(), "Start!", Toast.LENGTH_SHORT).show();
+            infoButton.setVisible(false);
             userCycling = true;
         }
         else if ((progress == 0) && (userCycling)) {
@@ -257,7 +291,7 @@ public class TripActivity extends AppCompatActivity
             Location.distanceBetween(pos.latitude, pos.longitude, target.latitude, target.longitude, results);
             float distanceToDestinaition = results[0];
 
-            if (distanceToDestinaition < distanceToDestinationFinished) {
+            if (distanceToDestinaition < distanceInMetersToDestinationFinished) {
                 currentTrip.finishedCycling(userCurrentPosition);
 
                 stopLocationUpdates();
@@ -274,6 +308,7 @@ public class TripActivity extends AppCompatActivity
             stopLocationUpdates();
 
             Toast.makeText(getApplicationContext(), "Stop!", Toast.LENGTH_SHORT).show();
+            infoButton.setVisible(true);
             userCycling = false;
         }
     }
