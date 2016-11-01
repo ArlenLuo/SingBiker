@@ -10,6 +10,14 @@
         app:showAsAction="always"
         android:visible="true"/>
 
+    <item
+    android:id="@+id/return_delete"
+    android:orderInCategory="1"
+    android:title="@string/return_delete"
+    android:icon="@drawable/ic_appbar_cross"
+    app:showAsAction="always"
+    android:visible="false"/>
+
 
     <item
         android:id="@+id/select_all"
@@ -20,7 +28,7 @@
         android:visible="false"/>
 
     <item
-        android:id="@+id/action_delete_all"
+        android:id="@+id/action_delete"
         android:orderInCategory="1"
         android:title="@string/action_delete_all"
         android:icon="@drawable/ic_appbar_thrashx"
