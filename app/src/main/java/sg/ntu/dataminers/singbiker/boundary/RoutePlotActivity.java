@@ -20,8 +20,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.maps.android.kml.KmlLayer;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
@@ -33,14 +31,13 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
@@ -49,9 +46,7 @@ import sg.ntu.dataminers.singbiker.control.MapManager;
 import sg.ntu.dataminers.singbiker.control.RouteManager;
 import sg.ntu.dataminers.singbiker.control.SettingsManager;
 import sg.ntu.dataminers.singbiker.entity.Incident;
-import sg.ntu.dataminers.singbiker.entity.Point;
 import sg.ntu.dataminers.singbiker.entity.Route;
-import sg.ntu.dataminers.singbiker.entity.Trip;
 
 public class RoutePlotActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
@@ -117,33 +112,6 @@ public class RoutePlotActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-
-            /*
-            // The following is temporary!
-            LatLng testStart = new LatLng(1.351400, 103.685803);
-            LatLng testEnd = new LatLng(1.338785, 103.705700);
-            LatLng testWaypoint1 = new LatLng(1.362381, 103.705002);
-            LatLng testWaypoint2 = new LatLng(1.323039, 103.679787);
-
-            List<LatLng> testList = new ArrayList<>();
-            testList.add(testWaypoint1);
-            testList.add(testWaypoint2);
-
-            Route testRoute = new Route(testStart, testEnd);
-            testRoute.setDistanceInMeters(10000);
-            testRoute.setWaypoints(testList);
-
-            Trip testTrip = new Trip(testRoute);
-            testTrip.setDateFinished(new Date(System.currentTimeMillis() + 3600000 * 3));
-            testTrip.setRouteCycled(testRoute);
-            testTrip.calculateAverageSpeed();
-
-            Intent i = new Intent(getApplicationContext(), IndividualTripActivity.class);
-            i.putExtra(IntentConstants.CONSTANT_STRING_CALLINGACTIVITY, IntentConstants.CONSTANT_INT_ROUTEPLOTACTIVITY);
-            i.putExtra(IntentConstants.CONSTANT_STRING_TRIP, testTrip);
-            startActivity(i);
-            */
-
             return true;
         }
 

@@ -2,16 +2,16 @@ package sg.ntu.dataminers.singbiker.entity;
 
 public class Settings {
 
-    private static boolean unitSystemKM = true;
+    private static boolean unitSystemMetric = true;
     private static int colorPCN;
     private static int colorNonPCN;
 
-    public static boolean isUnitSystemKM() {
-        return unitSystemKM;
+    public static boolean isUnitSystemMetric() {
+        return unitSystemMetric;
     }
 
     public static void setUnitSystem(boolean preferredUnitSystem) {
-        Settings.unitSystemKM = preferredUnitSystem;
+        Settings.unitSystemMetric = preferredUnitSystem;
     }
 
     public static int getColorPCN() {
