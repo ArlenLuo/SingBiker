@@ -27,9 +27,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.control.HistoryAdapter;
 import sg.ntu.dataminers.singbiker.control.HistoryManager;
+import sg.ntu.dataminers.singbiker.entity.Trip;
 import sg.ntu.dataminers.singbiker.entity.History;
 
 public class HistoryActivity extends AppCompatActivity
@@ -69,7 +71,7 @@ public class HistoryActivity extends AppCompatActivity
 
         //Here retrieve the history stored in the DATABASE
 
-        historyMan.addHistory(new History(null, new Date(Long.decode("12342352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("12342352353252"))));
         historyMan.addHistory(new History(null,  new Date(Long.decode("8342352353252"))));
         historyMan.addHistory(new History(null,  new Date(Long.decode("242352353252"))));
         historyMan.addHistory(new History(null,  new Date(Long.decode("42352353252"))));
@@ -195,11 +197,18 @@ public class HistoryActivity extends AppCompatActivity
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        if(parent.getId() == R.id.listViewHistory && deletionMode) {
-            CheckBox cb = (CheckBox) view.findViewById(R.id.checkbox_listview_history);
-            cb.setClickable(true);
-            cb.performClick();
-            cb.setClickable(false);
+        if(parent.getId() == R.id.listViewHistory) {
+            if (deletionMode) {
+                CheckBox cb = (CheckBox) view.findViewById(R.id.checkbox_listview_history);
+                cb.setClickable(true);
+                cb.performClick();
+                cb.setClickable(false);
+            } else {
+                Intent intentWithTrip = new Intent(this, IndividualTripActivity.class);
+                intentWithTrip.putExtra(IntentConstants.CONSTANT_STRING_CALLINGACTIVITY, IntentConstants.CONSTANT_INT_HISTORYLISTACTIVITY);
+                intentWithTrip.putExtra(IntentConstants.CONSTANT_STRING_TRIP, ((History)adapter.getItem(position)).getTrip());
+                startActivity(intentWithTrip);
+            }
         }
     }
 
