@@ -24,6 +24,7 @@
     <string name="action_delete_all">Delete all</string>
     <string name="enter_delete">Enter deletion</string>
     <string name="select_all">Select all</string>
+    <string name="return_delete">Cancel</string>
     <string name="action_trip_info">Trip info</string>
     <string name="action_change_route">Change route</string>
     <string name="action_save_settings">Save settings</string>
@@ -42,4 +43,9 @@
     <string name="settings_radiobutton_imperial">Imperial (mile)</string>
     <string name="settings_textview_pcn_color">PCN Color:</string>
     <string name="settings_textview_non_pcn_color">Non-PCN Color:</string>
+
+    <string name="history_delete_dialog_name">Delete</string>
+    <string name="history_delete_dialog_message">Delete the selected items ?</string>
+    <string name="history_delete_dialog_cancel">Cancel</string>
+    <string name="history_delete_dialog_confirm">Confirm</string>
 </resources>

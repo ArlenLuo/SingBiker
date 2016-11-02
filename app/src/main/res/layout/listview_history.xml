@@ -2,14 +2,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:weightSum="1">
 
     <ImageView
         android:id="@+id/image_listview_history"
-        android:layout_width="50dp"
+        android:layout_width="56dp"
         android:layout_height="match_parent"
         android:src="@drawable/ic_menu_bike"
-        android:layout_marginRight="12dp"/>
+        android:layout_margin="3dp"
+        android:visibility="gone"/>
+    <CheckBox
+        android:id="@+id/checkbox_listview_history"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:cursorVisible="false"
+        android:layout_gravity="center"
+        android:layout_margin="12dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:visibility="visible"/>
 
     <LinearLayout
         android:orientation="vertical"

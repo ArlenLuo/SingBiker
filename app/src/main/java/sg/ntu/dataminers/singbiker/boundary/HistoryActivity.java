@@ -1,5 +1,7 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -12,30 +14,36 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
+import sg.ntu.dataminers.singbiker.control.HistoryAdapter;
 import sg.ntu.dataminers.singbiker.control.HistoryManager;
+import sg.ntu.dataminers.singbiker.entity.Trip;
 import sg.ntu.dataminers.singbiker.entity.History;
 
 public class HistoryActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnItemClickListener {
 
-    private HistoryManager historyMan;
     private boolean deletionMode = false;
     private Menu menu;
-    SimpleAdapter adapter_normal;
-    SimpleAdapter adapter_delete;
+    HistoryAdapter adapter;
+    List<HashMap<String, String>> liste;
+    ArrayList <String> checkedValue;
+    Button bt1;
+    AlertDialog deleteDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,14 +63,29 @@ public class HistoryActivity extends AppCompatActivity
 
         navigationView.setCheckedItem(R.id.nav_history);
 
-        historyMan = new HistoryManager();
+        createDeleteDialog();
+
+
+        checkedValue = new ArrayList<String>();
+        HistoryManager historyMan = new HistoryManager();
 
         //Here retrieve the history stored in the DATABASE
 
-        historyMan.addHistory(new History(null, new Date(Long.decode("12342352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("12342352353252"))));
         historyMan.addHistory(new History(null,  new Date(Long.decode("8342352353252"))));
         historyMan.addHistory(new History(null,  new Date(Long.decode("242352353252"))));
         historyMan.addHistory(new History(null,  new Date(Long.decode("42352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("11352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("22352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("32352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("52352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("62352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("72352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("552352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("56352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("57352353252"))));
+        historyMan.addHistory(new History(null,  new Date(Long.decode("58352353252"))));
+
 
         ListView vue = (ListView) findViewById(R.id.listViewHistory);
         TextView no_trips = (TextView) findViewById(R.id.history_textview_no_trips);
@@ -73,37 +96,10 @@ public class HistoryActivity extends AppCompatActivity
         } else {
             no_trips.setVisibility(View.GONE);
 
-            List<HashMap<String, String>> liste = new ArrayList<HashMap<String, String>>();
-            HashMap<String, String> elem;
-            SimpleDateFormat dformat = new SimpleDateFormat("yyyy-MM-dd");
+            adapter = new HistoryAdapter(this, historyMan.getHistoryList());
 
-            for(int i=0; i < historyMan.getListSize(); i++) {
-                elem = new HashMap<String, String>();
-
-                elem.put("image", Integer.toString(R.drawable.ic_menu_bike));
-
-                elem.put("date", dformat.format(historyMan.getElem(i).getDate().getTime()));
-                elem.put("kilometers", "42");
-
-                liste.add(elem);
-            }
-
-            String[] from = {"image", "date", "kilometers"};
-            int[] to = {R.id.image_listview_history, R.id.text1_listview_history, R.id.text2_listview_history};
-
-            adapter_normal = new SimpleAdapter(this,
-                    liste,
-                    R.layout.listview_history,
-                    from,
-                    to);
-
-            adapter_delete = new SimpleAdapter(this,
-                    liste,
-                    R.layout.listview_history_deletion,
-                    from,
-                    to);
-
-            vue.setAdapter(adapter_normal);
+            vue.setAdapter(adapter);
+            vue.setOnItemClickListener(this);
         }
 
     }
@@ -136,9 +132,13 @@ public class HistoryActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.enter_delete) {
-            Toast.makeText(getApplicationContext(), "DELETE ALL", Toast.LENGTH_SHORT).show();
-
             setDeletionMode();
+        } else if(id == R.id.return_delete){
+            unsetDeletionMode();
+        } else if (id == R.id.select_all) {
+            adapter.selectAllItems();
+        } else if(id == R.id.action_delete) {
+            deleteDialog.show();
         }
 
         return super.onOptionsItemSelected(item);
@@ -174,21 +174,73 @@ public class HistoryActivity extends AppCompatActivity
         deletionMode = true;
 
         menu.findItem(R.id.enter_delete).setVisible(false);
-        menu.findItem(R.id.action_delete_all).setVisible(true);
+        menu.findItem(R.id.action_delete).setVisible(true);
         menu.findItem(R.id.select_all).setVisible(true);
+        menu.findItem(R.id.return_delete).setVisible(true);
 
-        ((ListView) findViewById(R.id.listViewHistory)).setAdapter(adapter_delete);
-
+        adapter.setDeletionMode();
     }
 
     private void unsetDeletionMode() {
         deletionMode = false;
+        checkedValue = new ArrayList<String>();
 
         menu.findItem(R.id.enter_delete).setVisible(true);
-        menu.findItem(R.id.action_delete_all).setVisible(false);
+        menu.findItem(R.id.action_delete).setVisible(false);
         menu.findItem(R.id.select_all).setVisible(false);
+        menu.findItem(R.id.return_delete).setVisible(false);
 
-        ((ListView) findViewById(R.id.listViewHistory)).setAdapter(adapter_normal);
+        adapter.unsetDeletionMode();
+    }
+
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+        if(parent.getId() == R.id.listViewHistory) {
+            if (deletionMode) {
+                CheckBox cb = (CheckBox) view.findViewById(R.id.checkbox_listview_history);
+                cb.setClickable(true);
+                cb.performClick();
+                cb.setClickable(false);
+            } else {
+                Intent intentWithTrip = new Intent(this, IndividualTripActivity.class);
+                intentWithTrip.putExtra(IntentConstants.CONSTANT_STRING_CALLINGACTIVITY, IntentConstants.CONSTANT_INT_HISTORYLISTACTIVITY);
+                intentWithTrip.putExtra(IntentConstants.CONSTANT_STRING_TRIP, ((History)adapter.getItem(position)).getTrip());
+                startActivity(intentWithTrip);
+            }
+        }
+    }
+
+    private void deleteSelectedHistory() {
+        boolean[] checked = adapter.getItemChecked();
+        checkedValue = new ArrayList<String>();
+        for (int i=0; i<checked.length; i++) {
+            if(checked[i]) {
+                checkedValue.add(""+i);
+            }
+        }
+        Toast.makeText(HistoryActivity.this, "" + checkedValue, Toast.LENGTH_SHORT).show();
+    }
+
+    private void createDeleteDialog(){
+        deleteDialog = new AlertDialog.Builder(this).create();
+        deleteDialog.setTitle(R.string.history_delete_dialog_name);
+        deleteDialog.setMessage(getResources().getString(R.string.history_delete_dialog_message));
+        deleteDialog.setCancelable(true);
+        deleteDialog.setButton(AlertDialog.BUTTON_POSITIVE, getResources().getString(R.string.history_delete_dialog_confirm), new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteSelectedHistory();
+                dialog.dismiss();
+            }
+        });
+        deleteDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getResources().getString(R.string.history_delete_dialog_cancel), new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
     }
 
 
