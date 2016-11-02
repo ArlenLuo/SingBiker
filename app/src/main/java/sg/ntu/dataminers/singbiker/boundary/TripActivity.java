@@ -122,7 +122,7 @@ public class TripActivity extends AppCompatActivity
                         try {
                             status.startResolutionForResult(TripActivity.this, 1001);
                         } catch (IntentSender.SendIntentException sie) {
-
+                            sie.printStackTrace();
                         }
 
                         break;
@@ -339,7 +339,7 @@ public class TripActivity extends AppCompatActivity
         Toast.makeText(this, "Couldn't connect client to service!", Toast.LENGTH_SHORT).show();
     }
 
-    protected LocationRequest createLocationRequest() {
+    private LocationRequest createLocationRequest() {
         LocationRequest locationRequest = new LocationRequest();
 
         locationRequest.setInterval(updateRatePreferred);
@@ -349,8 +349,7 @@ public class TripActivity extends AppCompatActivity
         return locationRequest;
     }
 
-    protected void startLocationUpdates() {
-
+    private void startLocationUpdates() {
         try {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
         } catch (SecurityException se) {
@@ -358,7 +357,7 @@ public class TripActivity extends AppCompatActivity
         }
     }
 
-    protected void stopLocationUpdates() {
+    private void stopLocationUpdates() {
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
@@ -381,7 +380,3 @@ public class TripActivity extends AppCompatActivity
         MapManager.drawRoute(map, currentTrip.getRouteCycled(), Settings.getColorNonPCN());
     }
 }
-
-/*
- * NOTE: The app doesn't stop receiving location updates when paused (as of right now).
- */

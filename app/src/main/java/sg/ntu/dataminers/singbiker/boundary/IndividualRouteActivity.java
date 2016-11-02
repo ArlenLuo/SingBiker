@@ -103,7 +103,6 @@ public class IndividualRouteActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -114,7 +113,8 @@ public class IndividualRouteActivity extends AppCompatActivity
         } else if (id == R.id.nav_favorites) {
 
         } else if (id == R.id.nav_history) {
-
+            intent = new Intent(getApplicationContext(), HistoryActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_haze) {
 
         } else if (id == R.id.nav_settings) {

@@ -1,5 +1,6 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -104,16 +105,17 @@ public class SettingsActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+        Intent intent;
 
         if (id == R.id.nav_routeplanner) {
-
+            intent = new Intent(getApplicationContext(), RoutePlotActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_favorites) {
 
         } else if (id == R.id.nav_history) {
-
+            intent = new Intent(getApplicationContext(), HistoryActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_haze) {
-
-        } else if (id == R.id.nav_settings) {
 
         }
 

@@ -126,7 +126,6 @@ public class IndividualTripActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_save_trip) {
-
             // Save trip in history here!
         }
         else if (id == R.id.action_discard_trip) {
@@ -140,7 +139,6 @@ public class IndividualTripActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
