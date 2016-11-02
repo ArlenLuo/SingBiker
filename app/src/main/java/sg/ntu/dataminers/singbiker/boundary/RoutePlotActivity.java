@@ -43,9 +43,11 @@ import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.control.IncidentManager;
 import sg.ntu.dataminers.singbiker.control.MapManager;
+import sg.ntu.dataminers.singbiker.control.PcnManager;
 import sg.ntu.dataminers.singbiker.control.RouteManager;
 import sg.ntu.dataminers.singbiker.control.SettingsManager;
 import sg.ntu.dataminers.singbiker.entity.Incident;
+import sg.ntu.dataminers.singbiker.entity.PcnPoint;
 import sg.ntu.dataminers.singbiker.entity.Route;
 
 public class RoutePlotActivity extends AppCompatActivity
@@ -56,6 +58,13 @@ public class RoutePlotActivity extends AppCompatActivity
     private Button plotButton;
     private LatLng start=new LatLng(1.4382776,103.7809787);
     private LatLng end=new LatLng(1.4030314,103.7328157);
+    private PcnManager pcnm;
+    private Marker cs;
+    private Marker ce;
+    private Marker sexit;
+    private Marker eexit;
+    private PcnPoint startpp;
+    private PcnPoint endpp;
 //    private LatLng start;
 //    private LatLng end;
     private Marker startMarker;
@@ -82,6 +91,7 @@ public class RoutePlotActivity extends AppCompatActivity
         mapFragment.getMapAsync(this);
         // Set the "Plan route"-item as pre-selected.
         navigationView.setCheckedItem(R.id.nav_routeplanner);
+        pcnm=new PcnManager(this);
         initUI();
 
     }
@@ -170,6 +180,8 @@ public class RoutePlotActivity extends AppCompatActivity
                     start=marker.getPosition();
                     startSearchBar.setText(loc);
                     updateStartPoint();
+
+
                 }
                 else if(marker.getTitle().equals("End point")){
                     end=marker.getPosition();
@@ -215,15 +227,16 @@ public class RoutePlotActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 if(start==null || end==null){
-                    Toast.makeText(RoutePlotActivity.this,"Enter start and end points",Toast.LENGTH_LONG);
+                    Toast.makeText(RoutePlotActivity.this,"Enter start and end points",Toast.LENGTH_LONG).show();
                     return;
                 }
+
                 updateStartPoint();
                 updateEndPoint();
                 Log.d("bikertag", ""+start.toString());
                 Log.d("bikertag", ""+end.toString());
                 Intent intent=new Intent(RoutePlotActivity.this,IndividualRouteActivity.class);
-                RouteManager rm=new RouteManager(start,end);
+                RouteManager rm=new RouteManager(start,end,RoutePlotActivity.this);
                 rm.execute();
                 ArrayList<Route> list=null;
                 while(!rm.isDone()){
@@ -253,6 +266,12 @@ public class RoutePlotActivity extends AppCompatActivity
     private void updateStartPoint(){
         if(startMarker!=null)
             startMarker.remove();
+        if(cs!=null)
+            cs.remove();
+        if(sexit!=null)
+            sexit.remove();
+        if(eexit!=null)
+            eexit.remove();
         MarkerOptions mo=new MarkerOptions();
         mo.position(start);
         mo.title("Start point");
@@ -260,7 +279,45 @@ public class RoutePlotActivity extends AppCompatActivity
         startMarker=mMap.addMarker(mo);
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(start);
+
+        startpp=pcnm.getNearestPcnPoint(start);
+        MarkerOptions me=new MarkerOptions();
+        me.position(new LatLng(startpp.ll.getLatitude(),startpp.ll.getLongitude()));
+        me.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        cs=mMap.addMarker(me);
+
+        if(endpp!=null){
+            boolean connected=pcnm.isConnected(startpp.id,endpp.id);
+            Log.d("bikertag",endpp.id+" and "+startpp.id+" connected=="+connected);
+            String z=startpp.id+"";
+            if(connected){
+                ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id);
+                for(int x:path){
+                    z=z.concat("-->"+x);
+                }
+                z=z.concat("-->"+endpp.id);
+                Log.d("bikertag",endpp.id+" and "+startpp.id+" path=="+z);
+                Toast.makeText(getBaseContext(),"Connected",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(),"path=="+z,Toast.LENGTH_LONG).show();
+            }
+            else{
+                LatLng[] arr=pcnm.getExitPoints(startpp,endpp);
+                Log.d("bikertag",arr.length+"");
+                MarkerOptions mz=new MarkerOptions();
+                mz.position(arr[0]);
+                mz.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                sexit=mMap.addMarker(mz);
+                Log.d("bikertag","startloop marker at "+mz.getPosition());
+                mz=new MarkerOptions();
+                mz.position(arr[1]);
+                mz.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                eexit=mMap.addMarker(mz);
+                Log.d("bikertag","endloop marker at "+mz.getPosition());
+                Toast.makeText(getBaseContext(),"Not Connected",Toast.LENGTH_SHORT).show();
+            }
+        }
         if(end!=null){
+            builder.include(start);
             builder.include(end);
             LatLngBounds bounds = builder.build();
             mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
@@ -271,11 +328,58 @@ public class RoutePlotActivity extends AppCompatActivity
     private void updateEndPoint(){
         if(endMarker!=null)
             endMarker.remove();
+        if(ce!=null)
+            ce.remove();
+        if(sexit!=null)
+            sexit.remove();
+        if(eexit!=null)
+            eexit.remove();
         MarkerOptions mo=new MarkerOptions();
         mo.position(end);
         mo.title("End point");
         mo.draggable(true);
         endMarker=mMap.addMarker(mo);
+
+        endpp=pcnm.getNearestPcnPoint(end);
+        MarkerOptions me=new MarkerOptions();
+        me.position(new LatLng(endpp.ll.getLatitude(),endpp.ll.getLongitude()));
+        me.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        ce=mMap.addMarker(me);
+
+
+
+
+        if(startpp!=null){
+            boolean connected=pcnm.isConnected(startpp.id,endpp.id);
+            Log.d("bikertag",endpp.id+" and "+startpp.id+" connected=="+connected);
+            String z=startpp.id+"";
+            if(connected){
+                ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id);
+                for(int x:path){
+                    z=z.concat("-->"+x);
+                }
+                z=z.concat("-->"+endpp.id);
+                Log.d("bikertag",endpp.id+" and "+startpp.id+" path=="+z);
+                Toast.makeText(getBaseContext(),"Connected",Toast.LENGTH_SHORT).show();
+            }
+            else{
+                LatLng[] arr=pcnm.getExitPoints(startpp,endpp);
+                Log.d("bikertag",arr.length+"");
+                MarkerOptions mz=new MarkerOptions();
+                mz.position(arr[0]);
+                mz.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                sexit=mMap.addMarker(mz);
+                Log.d("bikertag","startloop marker at "+mz.getPosition());
+                mz=new MarkerOptions();
+                mz.position(arr[1]);
+                mz.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                eexit=mMap.addMarker(mz);
+                Log.d("bikertag","endloop marker at "+mz.getPosition());
+                Toast.makeText(getBaseContext(),"Not Connected",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(),"path=="+z,Toast.LENGTH_LONG).show();
+            }
+
+        }
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         if(start!=null){
             builder.include(start);

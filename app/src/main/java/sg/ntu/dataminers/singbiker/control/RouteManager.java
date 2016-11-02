@@ -1,5 +1,6 @@
 package sg.ntu.dataminers.singbiker.control;
 
+import android.content.Context;
 import android.content.SyncStatusObserver;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -20,6 +21,7 @@ import java.util.List;
 
 import sg.ntu.dataminers.singbiker.ApiKeyList;
 import sg.ntu.dataminers.singbiker.UrlList;
+import sg.ntu.dataminers.singbiker.entity.PcnPoint;
 import sg.ntu.dataminers.singbiker.entity.Point;
 import sg.ntu.dataminers.singbiker.entity.Route;
 
@@ -32,10 +34,15 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
     private LatLng end;
     private ArrayList<Route> list;
     private boolean done=false;
+    private Context context;
+    private PcnManager pcnm;
 
-    public RouteManager(LatLng start,LatLng end){
+    public RouteManager(LatLng start,LatLng end,Context c){
         this.start=start;
         this.end=end;
+        context=c;
+        list=new ArrayList<Route>();
+        pcnm=new PcnManager(context);
     }
     public boolean isDone(){
         return done;
@@ -45,28 +52,59 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
     }
 
     private void plotAllRoutes(){
-        list=new ArrayList<Route>();
+        ArrayList<Route> bufList=new ArrayList<Route>();
+        Route pcnRoute=new Route(start,end);
+        ArrayList<LatLng> pcnRouteWp=new ArrayList<LatLng>();
+        //route connected to pcn
+        PcnPoint startpp=pcnm.getNearestPcnPoint(start);
+        LatLng startPcnPoint=new LatLng(startpp.ll.getLatitude(),startpp.ll.getLongitude());
+        PcnPoint endpp=pcnm.getNearestPcnPoint(end);
+        LatLng endPcnPoint=new LatLng(endpp.ll.getLatitude(),endpp.ll.getLongitude());
+        bufList=plotDirectRoutes(start,startPcnPoint,true,false);//start-->startpcn
+        for(Route r:bufList){
+            pcnRouteWp.addAll(r.getWaypoints());
+        }
+        boolean connected=pcnm.isConnected(startpp.id,endpp.id);
+        if(connected){
+            ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id);//startpcn-->endpcn
+        }
+        else{
+            LatLng[] arr=pcnm.getExitPoints(startpp,endpp);
 
-        //routes connected to pcn
-        LatLng startPcnPoint=getNearestPcnPoint(start);
-        LatLng endPcnPoint=getNearestPcnPoint(end);
+            bufList=plotDirectRoutes(startPcnPoint,arr[0],true,false);//startpcn-->startloopexit
+            for(Route r:bufList){
+                pcnRouteWp.addAll(r.getWaypoints());
+            }
 
-        //routes avoiding highways
-        plotDirectRoutes(true);
+            bufList=plotDirectRoutes(arr[0],arr[1],true,false);//startloopexit-->endloopexit
+            for(Route r:bufList){
+               pcnRouteWp.addAll(r.getWaypoints());
+            }
+            bufList=plotDirectRoutes(arr[1],endPcnPoint,true,false);//endloopexit-->endpcn
+            for(Route r:bufList){
+                pcnRouteWp.addAll(r.getWaypoints());
+            }
+        }
+        bufList=plotDirectRoutes(endPcnPoint,end,true,false);//endpcn-->end
+        for(Route r:bufList){
+            pcnRouteWp.addAll(r.getWaypoints());
+        }
+        pcnRoute.setWaypoints(pcnRouteWp);
+        list.add(pcnRoute);
 
-        //routs without avoiding highways
-        plotDirectRoutes(false);
-
+        //direct routes avoiding highways
+        bufList=plotDirectRoutes(start,end,true,true);
+       // list.addAll(bufList);
+        //direct routes without avoiding highways
+        bufList=plotDirectRoutes(start,end,false,true);
+       // list.addAll(bufList);
     }
 
-    private LatLng getNearestPcnPoint(LatLng p){
-        LatLng ll=null;
-        //get nearest pcn point to the start or end point
-        return ll;
-    }
 
-    private void plotDirectRoutes(boolean avoidHighway){
-        String data=getRawData(avoidHighway);
+
+    private ArrayList<Route> plotDirectRoutes(LatLng start,LatLng end,boolean avoidHighway,boolean alt){
+        ArrayList<Route> rList=new ArrayList<Route>();
+        String data=getRawData(start,end,avoidHighway,alt);
         Log.d("bikertag",data);
         try{
             JSONObject jo=new JSONObject(data);
@@ -79,21 +117,21 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
                 r.setWaypoints(waypoints);
                 r.setAvoidHighway(avoidHighway);
                 Log.d("bikertag","adding route to list");
-                list.add(r);
+                rList.add(r);
             }
 
         }catch(Exception e){
             e.printStackTrace();
         }
-
+        return rList;
     }
 
-    private String getRawData(boolean avoidHighway){
+    private String getRawData(LatLng start,LatLng end,boolean avoidHighway,boolean alt){
         String urlString= UrlList.GOOGLE_DIRECTIONS;
         urlString+="origin="+start.latitude+","+start.longitude;
         urlString+="&destination="+end.latitude+","+end.longitude;
         urlString+="&region=SG";
-        urlString+="&alternatives=true";
+        urlString+="&alternatives="+alt;
         urlString+="&key="+ ApiKeyList.GOOGLE_MAPS;
         if(avoidHighway){
             urlString+="&avoid=highways";
@@ -109,7 +147,7 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
                 data=data.concat(x);
             }
         }catch(Exception e){
-
+            e.printStackTrace();
         }
         return data;
     }

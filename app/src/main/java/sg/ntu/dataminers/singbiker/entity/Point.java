@@ -1,27 +1,23 @@
 package sg.ntu.dataminers.singbiker.entity;
 
-public class Point {
-    private double latitude;
-    private double longitude;
+import java.io.Serializable;
 
-    public Point(double lat, double lon) {
-        latitude = lat;
-        longitude = lon;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLatitude(double l) {
-        latitude = l;
-    }
-
-    public void setLongitude(double l) {
-        longitude = l;
-    }
-}
+public class Point implements Serializable{
+	public double latitude;
+	public double longitude;
+	
+	public Point(double latitude,double longitude){
+		this.latitude=latitude;
+		this.longitude=longitude;
+	}
+	public double getLatitude(){
+		return latitude;
+	}
+	public double getLongitude(){
+		return longitude;
+	}
+	@Override
+	public String toString() {
+		return "LatLng [latitude=" + latitude + ", longitude=" + longitude + "]";
+	}
+	}
