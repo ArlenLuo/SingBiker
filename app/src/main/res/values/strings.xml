@@ -17,6 +17,7 @@
     <string name="navigation_drawer_item_settings">Settings</string>
 
     <string name="action_settings">Settings</string>
+    <string name="action_clear_input">Clear input</string>
     <string name="action_save_trip">Save trip</string>
     <string name="action_discard_trip">Discard trip</string>
     <string name="action_remove_trip">Remove trip</string>
