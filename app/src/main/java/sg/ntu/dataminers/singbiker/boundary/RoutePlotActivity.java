@@ -17,7 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -55,7 +55,7 @@ public class RoutePlotActivity extends AppCompatActivity
     private GoogleMap mMap;
     private PlaceAutocompleteFragment startSearchBar;
     private PlaceAutocompleteFragment endSearchBar;
-    private Button plotButton;
+    private ImageButton plotButton;
     private LatLng start=new LatLng(1.4382776,103.7809787);
     private LatLng end=new LatLng(1.4030314,103.7328157);
     private PcnManager pcnm;
@@ -222,7 +222,7 @@ public class RoutePlotActivity extends AppCompatActivity
             }
         });
         endSearchBar.setFilter(filter);
-        plotButton=(Button)findViewById(R.id.plotButton);
+        plotButton=(ImageButton)findViewById(R.id.plotButton);
         plotButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

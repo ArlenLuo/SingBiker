@@ -30,6 +30,8 @@
     <string name="action_save_settings">Save settings</string>
     <string name="action_discard_settings">Discard settings</string>
 
+    <string name="route_plot_button_description">Plot route</string>
+
     <string name="individual_trip_textview_text"><u>Summary:</u>\nTotal distance:\n%1$.2f %3$s\n\nAverage speed:\n%2$.2f %4$s</string>
 
     <string name="trip_dialog_title">Trip info</string>

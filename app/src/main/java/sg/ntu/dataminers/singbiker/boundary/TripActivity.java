@@ -373,8 +373,10 @@ public class TripActivity extends AppCompatActivity
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(markerCurrent.getPosition());
+        builder.include(currentTrip.getRouteSystemGenerated().getPointEnd());
         bounds = builder.build();
-        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 200));
+        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+        //map.animateCamera(CameraUpdateFactory.newLatLngZoom(userCurrentPosition, 17));
 
         MapManager.drawRoute(map, currentTrip.getRouteCycled(), Settings.getColorNonPCN());
     }

@@ -1,56 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="sg.ntu.dataminers.singbiker.boundary.RoutePlotActivity"
     tools:showIn="@layout/app_bar_route_plot">
 
-
     <fragment
         android:id="@+id/startSearchBar"
+        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-        android:layout_alignParentTop="true"
-        />
+        android:layout_alignParentTop="true" />
 
     <fragment
         android:id="@+id/endSearchBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-        android:layout_below="@id/startSearchBar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
 
-
-
-    <fragment
-        android:name="com.google.android.gms.maps.MapFragment"
-        android:id="@+id/map"
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_below="@id/endSearchBar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_height="wrap_content"
+        android:layout_below="@id/startSearchBar" />
 
-    <Button
-        android:text="Plot route"
+    <ImageButton
+        android:id="@+id/plotButton"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/plotButton"
-        android:textSize="12sp"
-        android:background="@color/common_google_signin_btn_text_dark_focused"
-        android:textColor="@color/common_google_signin_btn_text_dark_default"
-        android:layout_below="@id/endSearchBar"
+        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@id/endSearchBar"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+
+        android:src="@drawable/ic_menu_bike"
+        android:contentDescription="@string/route_plot_button_description"/>
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.MapFragment"
+
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_below="@id/endSearchBar" />
 
 </RelativeLayout>
