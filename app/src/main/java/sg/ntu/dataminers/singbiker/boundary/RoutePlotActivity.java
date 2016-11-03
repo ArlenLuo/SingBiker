@@ -56,13 +56,11 @@ public class RoutePlotActivity extends AppCompatActivity
     private PlaceAutocompleteFragment startSearchBar;
     private PlaceAutocompleteFragment endSearchBar;
     private ImageButton plotButton;
-    private LatLng start=new LatLng(1.4382776,103.7809787);
-    private LatLng end=new LatLng(1.4030314,103.7328157);
+    private LatLng start;
+    private LatLng end;
     private PcnManager pcnm;
     private Marker cs;
     private Marker ce;
-    private Marker sexit;
-    private Marker eexit;
     private PcnPoint startpp;
     private PcnPoint endpp;
 //    private LatLng start;
@@ -187,8 +185,27 @@ public class RoutePlotActivity extends AppCompatActivity
                 }
             }
         });
-        GetData gd=new GetData();
-        gd.execute();
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                String loc=getLocation(latLng);
+                Toast.makeText(getBaseContext(),"MAP CLICKED ",Toast.LENGTH_SHORT).show();
+                    if(start==null){
+                        start=latLng;
+                        startSearchBar.setText(loc);
+                        updateStartPoint();
+                        return;
+                    }
+                    if(end==null){
+                        end=latLng;
+                        endSearchBar.setText(loc);
+                        updateEndPoint();
+                        return;
+                    }
+
+            }
+        });
+        MapManager.drawIncidents(mMap,RoutePlotActivity.this);
     }
     private void initUI(){
         AutocompleteFilter filter=new AutocompleteFilter.Builder().setCountry("SG").build();
@@ -265,11 +282,8 @@ public class RoutePlotActivity extends AppCompatActivity
             startMarker.remove();
         if(cs!=null)
             cs.remove();
-        if(sexit!=null)
-            sexit.remove();
-        if(eexit!=null)
-            eexit.remove();
         MarkerOptions mo=new MarkerOptions();
+        mo.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
         mo.position(start);
         mo.title("Start point");
         mo.draggable(true);
@@ -280,12 +294,13 @@ public class RoutePlotActivity extends AppCompatActivity
         startpp=pcnm.getNearestPcnPoint(start);
         MarkerOptions me=new MarkerOptions();
         me.position(new LatLng(startpp.ll.getLatitude(),startpp.ll.getLongitude()));
-        me.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        me.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bicycle));
+        me.title("Nearest Start PCN point");
         cs=mMap.addMarker(me);
 
         if(endpp!=null){
             boolean connected=pcnm.isConnected(startpp.id,endpp.id);
-            Log.d("bikertag",endpp.id+" and "+startpp.id+" connected=="+connected);
+            Log.d("bikertag",startpp.id+" and "+endpp.id+" connected=="+connected);
             String z=startpp.id+"";
             if(connected){
                 ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id);
@@ -293,23 +308,11 @@ public class RoutePlotActivity extends AppCompatActivity
                     z=z.concat("-->"+x);
                 }
                 z=z.concat("-->"+endpp.id);
-                Log.d("bikertag",endpp.id+" and "+startpp.id+" path=="+z);
+                Log.d("bikertag",startpp.id+" and "+endpp.id+" path=="+z);
                 Toast.makeText(getBaseContext(),"Connected",Toast.LENGTH_SHORT).show();
                 Toast.makeText(getBaseContext(),"path=="+z,Toast.LENGTH_LONG).show();
             }
             else{
-                LatLng[] arr=pcnm.getExitPoints(startpp,endpp);
-                Log.d("bikertag",arr.length+"");
-                MarkerOptions mz=new MarkerOptions();
-                mz.position(arr[0]);
-                mz.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-                sexit=mMap.addMarker(mz);
-                Log.d("bikertag","startloop marker at "+mz.getPosition());
-                mz=new MarkerOptions();
-                mz.position(arr[1]);
-                mz.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-                eexit=mMap.addMarker(mz);
-                Log.d("bikertag","endloop marker at "+mz.getPosition());
                 Toast.makeText(getBaseContext(),"Not Connected",Toast.LENGTH_SHORT).show();
             }
         }
@@ -327,10 +330,6 @@ public class RoutePlotActivity extends AppCompatActivity
             endMarker.remove();
         if(ce!=null)
             ce.remove();
-        if(sexit!=null)
-            sexit.remove();
-        if(eexit!=null)
-            eexit.remove();
         MarkerOptions mo=new MarkerOptions();
         mo.position(end);
         mo.title("End point");
@@ -341,14 +340,12 @@ public class RoutePlotActivity extends AppCompatActivity
         MarkerOptions me=new MarkerOptions();
         me.position(new LatLng(endpp.ll.getLatitude(),endpp.ll.getLongitude()));
         me.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        me.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bicycle));
+        me.title("Nearest End PCN point");
         ce=mMap.addMarker(me);
-
-
-
-
         if(startpp!=null){
             boolean connected=pcnm.isConnected(startpp.id,endpp.id);
-            Log.d("bikertag",endpp.id+" and "+startpp.id+" connected=="+connected);
+            Log.d("bikertag",startpp.id+" and "+endpp.id+" connected=="+connected);
             String z=startpp.id+"";
             if(connected){
                 ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id);
@@ -356,24 +353,11 @@ public class RoutePlotActivity extends AppCompatActivity
                     z=z.concat("-->"+x);
                 }
                 z=z.concat("-->"+endpp.id);
-                Log.d("bikertag",endpp.id+" and "+startpp.id+" path=="+z);
+                Log.d("bikertag",startpp.id+" and "+endpp.id+" path=="+z);
                 Toast.makeText(getBaseContext(),"Connected",Toast.LENGTH_SHORT).show();
             }
             else{
-                LatLng[] arr=pcnm.getExitPoints(startpp,endpp);
-                Log.d("bikertag",arr.length+"");
-                MarkerOptions mz=new MarkerOptions();
-                mz.position(arr[0]);
-                mz.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-                sexit=mMap.addMarker(mz);
-                Log.d("bikertag","startloop marker at "+mz.getPosition());
-                mz=new MarkerOptions();
-                mz.position(arr[1]);
-                mz.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-                eexit=mMap.addMarker(mz);
-                Log.d("bikertag","endloop marker at "+mz.getPosition());
                 Toast.makeText(getBaseContext(),"Not Connected",Toast.LENGTH_SHORT).show();
-                Toast.makeText(getBaseContext(),"path=="+z,Toast.LENGTH_LONG).show();
             }
 
         }
@@ -387,24 +371,7 @@ public class RoutePlotActivity extends AppCompatActivity
 
 
     }
-    class GetData extends AsyncTask<Void,Void,ArrayList<Incident>> {
-        protected ArrayList<Incident> doInBackground(Void... params){
-            IncidentManager im=new IncidentManager();
-            return im.getIncidents();
-        }
 
-        @Override
-        protected void onPostExecute(ArrayList<Incident> list) {
-            MarkerOptions mo=new MarkerOptions();
-            for (Incident i:list){
-                mo.position(new LatLng(i.getLocation().getLatitude(),i.getLocation().getLongitude()));
-                mo.title(i.getType());
-                mo.snippet(i.getDescription());
-                mo.icon(BitmapDescriptorFactory.fromResource(R.drawable.incident_icon));
-                mMap.addMarker(mo);
-            }
-        }
-    }
 
     public String getLocation(LatLng ll){
         String loc="";

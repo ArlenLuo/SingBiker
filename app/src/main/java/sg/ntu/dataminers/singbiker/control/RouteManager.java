@@ -2,6 +2,7 @@ package sg.ntu.dataminers.singbiker.control;
 
 import android.content.Context;
 import android.content.SyncStatusObserver;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -54,6 +55,7 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
     private void plotAllRoutes(){
         ArrayList<Route> bufList=new ArrayList<Route>();
         Route pcnRoute=new Route(start,end);
+        pcnRoute.setIsPcnRoute(true);
         ArrayList<LatLng> pcnRouteWp=new ArrayList<LatLng>();
         //route connected to pcn
         PcnPoint startpp=pcnm.getNearestPcnPoint(start);
@@ -63,41 +65,45 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
         bufList=plotDirectRoutes(start,startPcnPoint,true,false);//start-->startpcn
         for(Route r:bufList){
             pcnRouteWp.addAll(r.getWaypoints());
+            //list.add(r);
         }
         boolean connected=pcnm.isConnected(startpp.id,endpp.id);
+        Route temp=null;
         if(connected){
-            ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id);//startpcn-->endpcn
+            System.out.println("INTRA LOOP IS CONNECTED");
+            temp=plotIntraLoopRoute(startpp,endpp);//startpcn-->endpcn
+            //list.add(temp);
+            pcnRouteWp.addAll(temp.getWaypoints());
+            System.out.println(temp.getWaypoints());
         }
         else{
-            LatLng[] arr=pcnm.getExitPoints(startpp,endpp);
-
-            bufList=plotDirectRoutes(startPcnPoint,arr[0],true,false);//startpcn-->startloopexit
+            System.out.println("INTRA LOOP NOT CONNECTED");
+            int[] arr=pcnm.getExitPoints(startpp,endpp);
+            temp=plotIntraLoopRoute(startpp,pcnm.getPcnPointOfPlacemark(arr[0],0));//startpcn-->startloopexit
+            pcnRouteWp.addAll(temp.getWaypoints());
+            bufList=plotDirectRoutes(pcnm.getLatLngOfPlacemark(arr[0],0),pcnm.getLatLngOfPlacemark(arr[1],0),true,false);//startloopexit-->endloopexit
             for(Route r:bufList){
                 pcnRouteWp.addAll(r.getWaypoints());
             }
-
-            bufList=plotDirectRoutes(arr[0],arr[1],true,false);//startloopexit-->endloopexit
-            for(Route r:bufList){
-               pcnRouteWp.addAll(r.getWaypoints());
-            }
-            bufList=plotDirectRoutes(arr[1],endPcnPoint,true,false);//endloopexit-->endpcn
-            for(Route r:bufList){
-                pcnRouteWp.addAll(r.getWaypoints());
-            }
+            temp=plotIntraLoopRoute(pcnm.getPcnPointOfPlacemark(arr[1],0),endpp);;//endloopexit-->endpcn
+            pcnRouteWp.addAll(temp.getWaypoints());
+            //list.add(temp);
+            System.out.println(temp.getWaypoints());
         }
+
         bufList=plotDirectRoutes(endPcnPoint,end,true,false);//endpcn-->end
         for(Route r:bufList){
             pcnRouteWp.addAll(r.getWaypoints());
+            //list.add(r);
         }
         pcnRoute.setWaypoints(pcnRouteWp);
+        pcnRoute.setDistanceInMeters(getRouteDistance(pcnRouteWp));
         list.add(pcnRoute);
 
         //direct routes avoiding highways
-        bufList=plotDirectRoutes(start,end,true,true);
-       // list.addAll(bufList);
-        //direct routes without avoiding highways
-        bufList=plotDirectRoutes(start,end,false,true);
-       // list.addAll(bufList);
+        bufList=plotDirectRoutes(start,end,true,false);
+        list.addAll(bufList);
+
     }
 
 
@@ -113,9 +119,10 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
                 JSONObject route=arr.getJSONObject(i);
                 JSONObject polylineObj=route.getJSONObject("overview_polyline");
                 List<LatLng> waypoints=PolyUtil.decode(polylineObj.getString("points"));
+                JSONArray legsArr=route.getJSONArray("legs");
                 Route r=new Route(start,end);
-                r.setWaypoints(waypoints);
-                r.setAvoidHighway(avoidHighway);
+                r.setWaypoints((ArrayList)waypoints);
+                r.setDistanceInMeters(Double.parseDouble(legsArr.getJSONObject(0).getJSONObject("distance").get("value").toString()));
                 Log.d("bikertag","adding route to list");
                 rList.add(r);
             }
@@ -125,7 +132,122 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
         }
         return rList;
     }
+    private Route plotIntraLoopRoute(PcnPoint startpp,PcnPoint endpp){
+        System.out.println("NEW METHOD");
+        Route route=new Route(new LatLng(startpp.ll.latitude,startpp.ll.longitude) ,new LatLng(endpp.ll.latitude,endpp.ll.longitude));
+        Route temp;
+        ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id);//startpcn-->endpcn
+        ArrayList<LatLng> waypoints=pcnm.getWaypointsOfPlacemark(startpp.id);
+        int cur=startpp.id;
+        int pos=-1;
+        int sign=1;
+        //finding position of point in waypoints
+        for(int i=0;i<waypoints.size();i++){
+            System.out.println(waypoints.get(i)+"\t"+startpp.ll);
+            if(waypoints.get(i).latitude == startpp.ll.latitude && waypoints.get(i).longitude == startpp.ll.longitude){
+                pos=i;
+                break;
+            }
+        }
+        if(startpp.id==endpp.id){
+            //points are on the same placemark
+            System.out.println("points are on the same placemark");
+            if(pcnm.startIsNearerToPoint(startpp.id,endpp.ll)){
+                sign=-1;
+            }
+            else{
+                sign=1;
+            }
+            while(waypoints.get(pos).latitude!=endpp.ll.latitude && waypoints.get(pos).longitude!=endpp.ll.longitude){
+                route.addSingleWaypoint(waypoints.get(pos));
+                pos=pos+sign;
+            }
+            return route;
+        }
+        System.out.println("The start and end point is "+startpp.id+" || "+endpp.id);
+        System.out.println("The path for intra loop is "+path);
+        if(path.size()==0){
+            //the two placemarks are connected
+            if(pcnm.startIsNearerToCon(startpp.id,endpp.id)){
+                //startpoint is the connection
+                System.out.println("Startpoint is the connection");
+                sign=-1;
+            }
+            else{
+                System.out.println("Endpoint is the connection");
+                sign=1;
+            }
+            LatLng[] conList=pcnm.getConnectionBetweenPlacemarks(startpp.id,endpp.id);
+            System.out.println("THE POS "+pos+" THE SIZE "+waypoints.size());
+            while(true){
+                route.addSingleWaypoint(waypoints.get(pos));
+                if(waypoints.get(pos).latitude==conList[0].latitude && waypoints.get(pos).longitude==conList[0].longitude
+                        || waypoints.get(pos).latitude==conList[1].latitude && waypoints.get(pos).longitude==conList[1].longitude){
+                    break;
+                }
+                pos=pos+sign;
+            }
 
+        }
+        else{
+            System.out.println("the two placemarks are not directly connected");
+            if(pcnm.startIsNearerToCon(startpp.id,path.get(0))){
+                //startpoint is the connection
+                System.out.println("Startpoint is the connection");
+               sign=-1;
+            }
+            else{
+                System.out.println("Endpoint is the connection");
+                sign=1;
+            }
+
+            for(int i=0;i<path.size();i++){
+                int next=path.get(i);
+                LatLng[] conList=pcnm.getConnectionBetweenPlacemarks(cur,next);
+                System.out.println("THE CUR "+cur+" THE NEXT "+next);
+                System.out.println("THE CONNECTIONS "+conList[0]+"||||"+conList[1]);
+                System.out.println("CUR "+cur+"\t"+waypoints.size());
+                while(true){
+                    System.out.println(waypoints.get(pos)+"\t"+conList[0]);
+                    route.addSingleWaypoint(waypoints.get(pos));
+                    if(waypoints.get(pos).latitude==conList[0].latitude && waypoints.get(pos).longitude==conList[0].longitude
+                            || waypoints.get(pos).latitude==conList[1].latitude && waypoints.get(pos).longitude==conList[1].longitude){
+                        break;
+                    }
+                    pos=pos+sign;
+
+                }
+                cur=next;
+                waypoints=pcnm.getWaypointsOfPlacemark(cur);
+                pos=0;
+                sign=1;
+            }
+
+        }
+
+        waypoints=pcnm.getWaypointsOfPlacemark(endpp.id);
+        for(int i=0;i<waypoints.size();i++){
+            if(endpp.ll.latitude == waypoints.get(i).latitude && endpp.ll.longitude == waypoints.get(i).longitude)
+                break;
+            route.addSingleWaypoint(waypoints.get(i));
+        }
+        return route;
+    }
+    public double getRouteDistance(ArrayList<LatLng> list){
+        double dist=0;
+        Location a=new Location("a");
+        Location b=new Location("b");
+        for(int i=0;i<list.size();i++){
+            if(i!=list.size()-1){
+                a.setLatitude(list.get(i).latitude);
+                a.setLatitude(list.get(i).longitude);
+                b.setLatitude(list.get(i+1).latitude);
+                b.setLatitude(list.get(i+1).longitude);
+                dist+=a.distanceTo(b);
+            }
+        }
+        return dist;
+    }
     private String getRawData(LatLng start,LatLng end,boolean avoidHighway,boolean alt){
         String urlString= UrlList.GOOGLE_DIRECTIONS;
         urlString+="origin="+start.latitude+","+start.longitude;

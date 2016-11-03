@@ -122,7 +122,6 @@ public class PcnM {
 				pm=new Placemark();
 				pm.id=pp.id;
 				pm.name=pp.name;
-				pm.connection=pp.ll;
 				pm.waypoints=new ArrayList<Point>();
 				cur=pp.id;
 			}
@@ -130,7 +129,15 @@ public class PcnM {
 			if(i==pointList.size()-1)
 				graph[260][0]=pm;
 		}
+		initPlacemarkPoints();
 	}
+	public void initPlacemarkPoints(){
+		for(int i=0;i<SIZE;i++){
+			graph[i][0].connectionone=graph[i][0].waypoints.get(0);
+			graph[i][0].connectiontwo=graph[i][0].waypoints.get(graph[i][0].waypoints.size()-1);
+		}
+	}
+
 	public void createGraph(){
 		for (int i=0;i<pointList.size();i++){
 			for(int j=0;j<pointList.size();j++){
@@ -140,7 +147,7 @@ public class PcnM {
 						){
 					double latdiff=Math.abs(pointList.get(i).ll.latitude-pointList.get(j).ll.latitude);
 					double longdiff=Math.abs(pointList.get(i).ll.longitude-pointList.get(j).ll.longitude);
-					condiff[pointList.get(i).id][pointList.get(j).id].list.add(new ConDiff(latdiff,longdiff,pointList.get(j).ll));
+					condiff[pointList.get(i).id][pointList.get(j).id].list.add(new ConDiff(latdiff,longdiff,pointList.get(j).ll,pointList.get(i).ll));
 
 				}
 			}
@@ -151,8 +158,9 @@ public class PcnM {
 					Collections.sort(condiff[i][j].list);
 					ConDiff leastDiff=condiff[i][j].list.get(0);
 					Placemark pm=new Placemark();
-					pm.connection=leastDiff.con;
-					System.out.println("adding edge at "+i+"||"+j);
+					pm.connectionone=leastDiff.con;
+					pm.connectiontwo=leastDiff.contwo;
+					System.out.println("adding edge at "+i+"||"+j+" ConOne == "+pm.connectionone+" ConTwo == "+pm.connectiontwo);
 					graph[i][j]=pm;
 				}
 
@@ -167,6 +175,8 @@ public class PcnM {
 	}
 	public boolean isConnected(int root,int dest){
 		resetGraph();
+		if(root==dest)
+			return true;
 		boolean connected=false;
 		Queue<Integer> q=new LinkedList<Integer>();
 		q.add(root);
@@ -176,13 +186,15 @@ public class PcnM {
 			for(int i=1;i<SIZE;i++){
 				if(graph[p][i]!=null && !graph[i][0].visited){
 					graph[i][0].prev=p;
+					q.add(i);
+					graph[i][0].visited=true;
 					if(i==dest){
 						return true;
 					}
 				}
 			}
 		}
-		
+
 		return connected;
 	}
 	
@@ -204,12 +216,16 @@ public class PcnM {
 		}
 	}
 	public ArrayList<Integer> getPath(int start,int end){
+		System.out.println("Getting path for "+start+"||||"+end);
 		ArrayList<Integer> path=new ArrayList<Integer>();
+		if(start==end)
+			return path;
 		int prev=graph[end][0].prev;
 		while(prev!=start){
 			path.add(prev);
 			prev=graph[prev][0].prev;
 		}
+		Collections.reverse(path);
 		return path;
 	}
 	public Placemark getPlacemark(Point point){
@@ -246,16 +262,16 @@ public class PcnM {
 						double lat=0;
 						double longitude=0;
 						if(i!=0)
-							lat=Double.parseDouble(cList[i].substring(2, cList[i].length()-1));
+							longitude=Double.parseDouble(cList[i].substring(2));
 						else
-							lat=Double.parseDouble(cList[i]);
-						longitude=Double.parseDouble(cList[i+1]);
+							longitude=Double.parseDouble(cList[i]);
+						lat=Double.parseDouble(cList[i+1]);
 						PcnPoint p=new PcnPoint();
 						String tempId=e.parent().parent().parent().attr("id");
 						tempId=tempId.substring(3, tempId.length());
 						p.id=Integer.parseInt(tempId);
 						p.name=e.parent().parent().parent().select("name").text();
-						p.ll=new Point(longitude,lat);
+						p.ll=new Point(lat,longitude);
 						pointList.add(p);
 					}
 				}
@@ -272,10 +288,12 @@ public class PcnM {
 		double latdiff;
 		double longdiff;
 		Point con;
+		Point contwo;
 
-		public ConDiff(double latdiff,double longdiff, Point con) {
+		public ConDiff(double latdiff,double longdiff, Point con,Point contwo) {
 			this.longdiff = longdiff;
 			this.con = con;
+			this.contwo=contwo;
 			this.latdiff = latdiff;
 		}
 
@@ -289,5 +307,6 @@ public class PcnM {
 				return 0;
 		}
 	}
+
 	
 }

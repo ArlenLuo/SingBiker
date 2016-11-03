@@ -5,22 +5,23 @@ import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Route implements Parcelable{
 
     private LatLng pointStart;
     private LatLng pointEnd;
-    private List<LatLng> waypoints;
+    private ArrayList<LatLng> waypoints;
     private double distanceInMeters;
-    private boolean avoidHighway;
+    private boolean isPcnRoute=false;
 
     protected Route(Parcel in) {
         pointStart = in.readParcelable(LatLng.class.getClassLoader());
         pointEnd = in.readParcelable(LatLng.class.getClassLoader());
         waypoints = in.createTypedArrayList(LatLng.CREATOR);
         distanceInMeters = in.readDouble();
-        avoidHighway = in.readByte() != 0;
+        isPcnRoute = in.readByte() != 0;
     }
 
     public static final Creator<Route> CREATOR = new Creator<Route>() {
@@ -35,12 +36,12 @@ public class Route implements Parcelable{
         }
     };
 
-    public boolean isAvoidHighway() {
-        return avoidHighway;
+    public boolean isPcnRoute() {
+        return isPcnRoute;
     }
 
-    public void setAvoidHighway(boolean avoidHighway) {
-        this.avoidHighway = avoidHighway;
+    public void setIsPcnRoute(boolean isPcnRoute) {
+        this.isPcnRoute = isPcnRoute;
     }
 
 
@@ -48,8 +49,14 @@ public class Route implements Parcelable{
     public Route(LatLng startPoint, LatLng endPoint) {
         pointStart = startPoint;
         pointEnd = endPoint;
+        waypoints=new ArrayList<LatLng>();
     }
-
+    public void addWayPoints(ArrayList<LatLng> wp){
+        waypoints.addAll(wp);
+    }
+    public void addSingleWaypoint(LatLng wp){
+        waypoints.add(wp);
+    }
     public LatLng getPointStart() {
         return pointStart;
     }
@@ -58,11 +65,11 @@ public class Route implements Parcelable{
         return pointEnd;
     }
 
-    public List<LatLng> getWaypoints() {
+    public ArrayList<LatLng> getWaypoints() {
         return waypoints;
     }
 
-    public void setWaypoints(List<LatLng> waypoints) {
+    public void setWaypoints(ArrayList<LatLng> waypoints) {
         this.waypoints = waypoints;
     }
 
@@ -85,6 +92,6 @@ public class Route implements Parcelable{
         dest.writeParcelable(pointEnd, flags);
         dest.writeTypedList(waypoints);
         dest.writeDouble(distanceInMeters);
-        dest.writeByte((byte) (avoidHighway ? 1 : 0));
+        dest.writeByte((byte) (isPcnRoute ? 1 : 0));
     }
 }

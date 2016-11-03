@@ -2,43 +2,77 @@ package sg.ntu.dataminers.singbiker.control;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.AsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.kml.KmlLayer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import sg.ntu.dataminers.singbiker.R;
+import sg.ntu.dataminers.singbiker.entity.Incident;
 import sg.ntu.dataminers.singbiker.entity.Route;
 
 public class MapManager {
 
-    public static void drawRoute(GoogleMap map, Route route,int color) {
+    public static Polyline drawRoute(GoogleMap map, Route route,int color) {
         PolylineOptions po=new PolylineOptions();
-        po.width(10);
+        po.width(12);
         po.color(color);
-        List<LatLng> list=route.getWaypoints();
+        ArrayList<LatLng> list=route.getWaypoints();
 
-        po.add(route.getPointStart());
+        //po.add(route.getPointStart());
 
         for (int i=0;i<list.size();i++){
             po.add(list.get(i));
         }
 
-        po.add(route.getPointEnd());
+        //po.add(route.getPointEnd());
 
-        map.addPolyline(po);
+        return map.addPolyline(po);
     }
 
-    public static void drawPcnRoutes(GoogleMap map,Context context){
+    public static KmlLayer drawPcnRoutes(GoogleMap map,Context context){
+        KmlLayer kmlLayer=null;
         try{
-            KmlLayer kmlLayer = new KmlLayer(map, R.raw.pcn, context);
+            kmlLayer = new KmlLayer(map, R.raw.pcn, context);
             kmlLayer.addLayerToMap();
         }catch(Exception e){
+            e.printStackTrace();
+        }
+        return kmlLayer;
+    }
 
+    public static void drawIncidents(GoogleMap map,Context context){
+        GetData data=new GetData(map);
+        data.execute();
+    }
+    static class GetData extends AsyncTask<Void,Void,ArrayList<Incident>> {
+        GoogleMap map;
+        public GetData(GoogleMap map){
+            this.map=map;
+        }
+        protected ArrayList<Incident> doInBackground(Void... params){
+            IncidentManager im=new IncidentManager();
+            return im.getIncidents();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Incident> list) {
+            MarkerOptions mo=new MarkerOptions();
+            for (Incident i:list){
+                mo.position(new LatLng(i.getLocation().getLatitude(),i.getLocation().getLongitude()));
+                mo.title(i.getType());
+                mo.snippet(i.getDescription());
+                mo.icon(BitmapDescriptorFactory.fromResource(R.drawable.incident_icon));
+                map.addMarker(mo);
+            }
         }
     }
 }
