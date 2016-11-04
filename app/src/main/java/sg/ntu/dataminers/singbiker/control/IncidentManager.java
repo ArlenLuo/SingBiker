@@ -28,7 +28,6 @@ public class IncidentManager {
 
 	private void retrieveIncidents(){
 		String data=getRawData();
-		System.out.println(data);
 		try {
 			JSONObject jo = new JSONObject(data);
 			JSONArray arr = jo.getJSONArray("value");
@@ -38,9 +37,6 @@ public class IncidentManager {
 				incident.setDescription(arr.getJSONObject(i).getString("Message"));
 				incident.setLocation(new Point(arr.getJSONObject(i).getDouble("Latitude"), arr.getJSONObject(i).getDouble("Longitude")));
 				incidentList.add(incident);
-			}
-			for (int i = 0; i < incidentList.size(); i++) {
-				System.out.println(incidentList.get(i));
 			}
 		}catch(Exception e){
 			e.printStackTrace();

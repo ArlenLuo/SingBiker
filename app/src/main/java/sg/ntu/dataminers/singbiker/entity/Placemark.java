@@ -12,4 +12,13 @@ public class Placemark implements Serializable{
 	public boolean visited=false;
 	public int prev;
 
+	@Override
+	public String toString() {
+		return "Placemark{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				", connectionone=" + connectionone +
+				", connectiontwo=" + connectiontwo +
+				'}';
+	}
 }

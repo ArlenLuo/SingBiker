@@ -30,16 +30,38 @@ public class PcnManager {
 	final static int SIZE=261;
 	ArrayList<PcnPoint> pointList;
 	Context context;
+	Placemark[] placemarkList;
 	Placemark[][] graph;
 	public PcnManager(Context c){
 		context=c;
 		init();
 	}
 
-
+	public void readPointList(){
+		try{
+			Log.d("bikertag","entered reader graph");
+			InputStream is=context.getResources().openRawResource(R.raw.pointlist);
+			ObjectInputStream os=new ObjectInputStream(is);
+			pointList=(ArrayList<PcnPoint>)os.readObject();
+			os.close();
+		}catch(Exception e){
+			Log.d("bikertag", Log.getStackTraceString(new Exception()));
+		}
+	}
 	public void readGraph(){
 		try{
 			Log.d("bikertag","entered reader graph");
+			InputStream is=context.getResources().openRawResource(R.raw.placemarklist);
+			ObjectInputStream os=new ObjectInputStream(is);
+			placemarkList=(Placemark[])os.readObject();
+			os.close();
+		}catch(Exception e){
+			Log.d("bikertag", Log.getStackTraceString(new Exception()));
+		}
+		
+	}
+	public void readPlacemarkList(){
+		try{
 			InputStream is=context.getResources().openRawResource(R.raw.graph);
 			ObjectInputStream os=new ObjectInputStream(is);
 			graph=(Placemark[][])os.readObject();
@@ -47,23 +69,15 @@ public class PcnManager {
 		}catch(Exception e){
 			Log.d("bikertag", Log.getStackTraceString(new Exception()));
 		}
-		
 	}
 	public void init(){
-		graph=new Placemark[SIZE][SIZE];
-		for(int i=0;i<SIZE;i++){
-			for(int j=0;j<SIZE;j++){
-				graph[i][j]=null;
-			}
-		}
-		pointList=new ArrayList<PcnPoint>();
-		createPointList();
+		readPointList();
 		readGraph();
+		readPlacemarkList();
 	}
-
 	public void resetGraph(){
 		for(int i=0;i<SIZE;i++){
-			graph[i][0].visited=false;
+			placemarkList[i].visited=false;
 		}
 	}
 	public boolean isConnected(int root,int dest){
@@ -73,14 +87,14 @@ public class PcnManager {
 		boolean connected=false;
 		Queue<Integer> q=new LinkedList<Integer>();
 		q.add(root);
-		graph[root][0].visited=true;
+		placemarkList[root].visited=true;
 		while(!q.isEmpty()){
 			int p=q.poll();
-			for(int i=1;i<SIZE;i++){
-				if(graph[p][i]!=null && !graph[i][0].visited){
-					graph[i][0].prev=p;
+			for(int i=0;i<SIZE;i++){
+				if(graph[p][i]!=null && !placemarkList[i].visited){
+					placemarkList[i].prev=p;
 					q.add(i);
-					graph[i][0].visited=true;
+					placemarkList[i].visited=true;
 					if(i==dest){
 						return true;
 					}
@@ -90,6 +104,50 @@ public class PcnManager {
 
 		return connected;
 	}
+	public boolean isConnectedAlternative(int root,int dest){
+		resetGraph();
+		if(root==dest)
+			return true;
+		boolean connected=false;
+		Queue<Integer> q=new LinkedList<Integer>();
+		q.add(root);
+		placemarkList[root].visited=true;
+		while(!q.isEmpty()){
+			int p=q.poll();
+			for(int i=SIZE-1;i>=0;i--){
+				if(graph[p][i]!=null && !placemarkList[i].visited){
+					placemarkList[i].prev=p;
+					q.add(i);
+					placemarkList[i].visited=true;
+					if(i==dest){
+						return true;
+					}
+				}
+			}
+		}
+
+		return connected;
+	}
+	public ArrayList<Integer> getPath(int start,int end,boolean alternative){
+		if(alternative)
+			isConnectedAlternative(start,end);
+		else
+			isConnected(start,end);
+		System.out.println("Getting path for "+start+" and "+end);
+		ArrayList<Integer> path=new ArrayList<Integer>();
+		path.add(end);
+		if(start==end){
+			return path;
+		}
+		int prev=placemarkList[end].prev;
+		while(prev!=start){
+			path.add(prev);
+			prev=placemarkList[prev].prev;
+		}
+		path.add(start);
+		Collections.reverse(path);
+		return path;
+	}
 	public ArrayList<Integer> getPlacemarksInLoop(int root){
 		ArrayList<Integer> list=new ArrayList<Integer>();
 		resetGraph();
@@ -97,15 +155,15 @@ public class PcnManager {
 		Queue<Integer> q=new LinkedList<Integer>();
 		list.add(root);
 		q.add(root);
-		graph[root][0].visited=true;
+		placemarkList[root].visited=true;
 		while(!q.isEmpty()){
 			int p=q.poll();
-			for(int i=1;i<SIZE;i++){
-				if(graph[p][i]!=null && !graph[i][0].visited){
-					graph[i][0].prev=p;
+			for(int i=0;i<SIZE;i++){
+				if(graph[p][i]!=null && !placemarkList[i].visited){
+					placemarkList[i].prev=p;
 					list.add(i);
 					q.add(i);
-					graph[i][0].visited=true;
+					placemarkList[i].visited=true;
 				}
 			}
 		}
@@ -124,12 +182,12 @@ public class PcnManager {
 		double min=Double.MAX_VALUE;
 		for(int i=0;i<firstLoop.size();i++){
 			Location a=new Location("a");
-			a.setLatitude(graph[firstLoop.get(i)][0].connectionone.getLatitude());
-			a.setLongitude(graph[firstLoop.get(i)][0].connectionone.getLongitude());
+			a.setLatitude(placemarkList[firstLoop.get(i)].connectionone.getLatitude());
+			a.setLongitude(placemarkList[firstLoop.get(i)].connectionone.getLongitude());
 			for(int j=0;j<secondLoop.size();j++){
 				Location b=new Location("b");
-				b.setLatitude(graph[secondLoop.get(j)][0].connectionone.getLatitude());
-				b.setLongitude(graph[secondLoop.get(j)][0].connectionone.getLongitude());
+				b.setLatitude(placemarkList[secondLoop.get(j)].connectionone.getLatitude());
+				b.setLongitude(placemarkList[secondLoop.get(j)].connectionone.getLongitude());
 				double d=a.distanceTo(b);
 				dist[i][j]=d;
 				if(d<min){
@@ -140,8 +198,8 @@ public class PcnManager {
 			}
 		}
 		LatLng[] llarr=new LatLng[2];
-		llarr[0]=new LatLng(graph[arr[0]][0].connectionone.latitude,graph[arr[0]][0].connectionone.longitude);
-		llarr[1]=new LatLng(graph[arr[1]][0].connectionone.latitude,graph[arr[1]][0].connectionone.longitude);
+		llarr[0]=new LatLng(placemarkList[arr[0]].connectionone.latitude,placemarkList[arr[0]].connectionone.longitude);
+		llarr[1]=new LatLng(placemarkList[arr[1]].connectionone.latitude,placemarkList[arr[1]].connectionone.longitude);
 		return arr;
 	}
 	public PcnPoint getNearestPcnPoint(LatLng s){
@@ -158,20 +216,7 @@ public class PcnManager {
 		return pointList.get(0);
 
 	}
-	public ArrayList<Integer> getPath(int start,int end){
-		isConnected(start,end);
-		System.out.println("Getting path for "+start+"||||"+end);
-		ArrayList<Integer> path=new ArrayList<Integer>();
-		if(start==end)
-			return path;
-		int prev=graph[end][0].prev;
-		while(prev!=start){
-			path.add(prev);
-			prev=graph[prev][0].prev;
-		}
-		Collections.reverse(path);
-		return path;
-	}
+
 	public double distance(Point start,Point end){
 		Location a=new Location("a");
 		a.setLatitude(start.latitude);
@@ -183,23 +228,23 @@ public class PcnManager {
 	}
 	public boolean startIsNearerToCon(int first,int second){
 		System.out.println(first+"|||||"+second);
-		if( distance(graph[first][0].connectionone,graph[first][second].connectionone) > distance(graph[first][0].connectiontwo,graph[first][second].connectionone))
+		if( distance(placemarkList[first].connectionone,graph[first][second].connectionone) > distance(placemarkList[first].connectiontwo,graph[first][second].connectionone))
 			return false;
 		else
 			return true;
 	}
 	public boolean startIsNearerToPoint(int first,Point p){
-		System.out.println(first+"|||||"+p);
-		if( distance(graph[first][0].connectionone,p) > distance(graph[first][0].connectiontwo,p))
+		System.out.println(first+"\t"+p);
+		if( distance(placemarkList[first].connectionone,p) > distance(placemarkList[first].connectiontwo,p))
 			return false;
 		else
 			return true;
 	}
 	public LatLng getLatLngOfPlacemark(int placemark,int bound){
 		if(bound==0)
-			return new LatLng(graph[placemark][0].connectionone.latitude,graph[placemark][0].connectionone.longitude);
+			return new LatLng(placemarkList[placemark].connectionone.latitude,placemarkList[placemark].connectionone.longitude);
 		else if(bound==1)
-			return new LatLng(graph[placemark][0].connectiontwo.latitude,graph[placemark][0].connectiontwo.longitude);
+			return new LatLng(placemarkList[placemark].connectiontwo.latitude,placemarkList[placemark].connectiontwo.longitude);
 		else
 			return null;
 	}
@@ -207,26 +252,26 @@ public class PcnManager {
 		PcnPoint pp=new PcnPoint();
 		pp.id=placemark;
 		if(bound==0)
-			pp.ll=graph[placemark][0].connectionone;
+			pp.ll=placemarkList[placemark].connectionone;
 		else if(bound ==1)
-			pp.ll=graph[placemark][0].connectiontwo;
+			pp.ll=placemarkList[placemark].connectiontwo;
 		return pp;
 	}
+
 	public ArrayList<LatLng> getWaypointsOfPlacemark(int placemark){
 		ArrayList<LatLng> waypoints=new ArrayList<LatLng>();
-		ArrayList<Point> tempList=graph[placemark][0].waypoints;
+		ArrayList<Point> tempList=placemarkList[placemark].waypoints;
 		for(Point p:tempList){
 			waypoints.add(new LatLng(p.latitude,p.longitude));
 		}
-
 		return waypoints;
 	}
 	public LatLng[] getConnectionBetweenPlacemarks(int start,int end){
 		LatLng conone=null;
 		LatLng contwo=null;
 		if(start==end){
-			conone=new LatLng(graph[start][0].connectionone.latitude,graph[start][0].connectionone.longitude);
-			contwo=new LatLng(graph[start][0].connectionone.latitude,graph[start][0].connectionone.longitude);
+			conone=new LatLng(placemarkList[start].connectionone.latitude,placemarkList[start].connectionone.longitude);
+			contwo=new LatLng(placemarkList[start].connectionone.latitude,placemarkList[start].connectionone.longitude);
 		}
 		else if(end==0){
 			conone=new LatLng(graph[end][start].connectionone.latitude,graph[end][start].connectionone.longitude);
@@ -241,53 +286,7 @@ public class PcnManager {
 		return arr;
 	}
 	public Placemark[] getPlacemarks(){
-		Placemark[] arr=new Placemark[SIZE];
-		for(int i=0;i<SIZE;i++){
-			arr[i]=graph[i][0];
-		}
-		return arr;
-	}
-	public void createPointList(){
-		
-		try{
-			StringBuilder sb=new StringBuilder();
-			//read file
-			InputStream is=context.getResources().openRawResource(R.raw.pcn);
-			BufferedReader br=new BufferedReader(new InputStreamReader(is));
-			String l=br.readLine();
-			while(l!=null){
-				sb.append(l);
-				l=br.readLine();
-			}
-			br.close();
-			
-			Document doc=Jsoup.parse(sb.toString(), "", Parser.xmlParser());
-			Elements list=doc.select("Coordinates");
-			for (Element e:list){
-				String coords=e.text();
-				String[] cList=coords.split(",");
-				for (int i=0;i<cList.length;i+=2){
-					if(i<cList.length-1){
-						double lat=0;
-						double longitude=0;
-						if(i!=0)
-							longitude=Double.parseDouble(cList[i].substring(2));
-						else
-							longitude=Double.parseDouble(cList[i]);
-						lat=Double.parseDouble(cList[i+1]);
-						PcnPoint p=new PcnPoint();
-						String tempId=e.parent().parent().parent().attr("id");
-						tempId=tempId.substring(3, tempId.length());
-						p.id=Integer.parseInt(tempId);
-						p.name=e.parent().parent().parent().select("name").text();
-						p.ll=new Point(lat,longitude);
-						pointList.add(p);
-					}
-				}
-			}	
-		}catch(Exception e){
-			e.printStackTrace();
-		}
+		return placemarkList;
 	}
 
 }

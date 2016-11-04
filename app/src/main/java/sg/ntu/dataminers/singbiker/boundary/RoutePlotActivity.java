@@ -301,13 +301,12 @@ public class RoutePlotActivity extends AppCompatActivity
         if(endpp!=null){
             boolean connected=pcnm.isConnected(startpp.id,endpp.id);
             Log.d("bikertag",startpp.id+" and "+endpp.id+" connected=="+connected);
-            String z=startpp.id+"";
+            String z="";
             if(connected){
-                ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id);
+                ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id,false);
                 for(int x:path){
                     z=z.concat("-->"+x);
                 }
-                z=z.concat("-->"+endpp.id);
                 Log.d("bikertag",startpp.id+" and "+endpp.id+" path=="+z);
                 Toast.makeText(getBaseContext(),"Connected",Toast.LENGTH_SHORT).show();
                 Toast.makeText(getBaseContext(),"path=="+z,Toast.LENGTH_LONG).show();
@@ -346,13 +345,12 @@ public class RoutePlotActivity extends AppCompatActivity
         if(startpp!=null){
             boolean connected=pcnm.isConnected(startpp.id,endpp.id);
             Log.d("bikertag",startpp.id+" and "+endpp.id+" connected=="+connected);
-            String z=startpp.id+"";
+            String z="";
             if(connected){
-                ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id);
+                ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id,false);
                 for(int x:path){
                     z=z.concat("-->"+x);
                 }
-                z=z.concat("-->"+endpp.id);
                 Log.d("bikertag",startpp.id+" and "+endpp.id+" path=="+z);
                 Toast.makeText(getBaseContext(),"Connected",Toast.LENGTH_SHORT).show();
             }

@@ -28,7 +28,8 @@ public class PcnM {
 	String filename="C:/users/muham/documents/pcn.kml";
 	static String logFile="C:/users/muham/documents/log.txt";
 	ArrayList<PcnPoint> pointList;
-	Placemark[][] graph;
+	Placemark[] placemarkList;
+ 	Placemark[][] graph;
 	ConDiffList[][] condiff;
 	public PcnM(){
 		init();
@@ -41,40 +42,46 @@ public class PcnM {
 			
 		}
 		p.createPointList();
-		//p.printList(p.pointList,"pplist");
+		p.printList(p.pointList,"pplist");
 		p.createPlacemarkList();
+		for(Placemark x:p.placemarkList){
+			System.out.println(x);
+		}
 		p.createGraph();
 		p.printGraph();
+		p.writePointList();
+		p.writePlacemarkList();
 		p.writeGraph();
 		//p.readGraph();
 		Scanner sc=new Scanner(System.in);
-//		while(true){
-//			try{
-//			System.out.println("enter query: ");
-//			String x=sc.nextLine();
-//			String[] list=x.split(" ");
-//			int start=Integer.parseInt(list[0]);
-//			int end=Integer.parseInt(list[1]);
-//			boolean connected=p.isConnected(start, end);
-//			if(connected){
-//				ArrayList<Integer> path=p.getPath(start, end);
-//				p.printList(path, "path");
-//			}
-//			else{
-//				System.out.println("not connected");
-//			}
-//			System.out.println();
-//			}catch(Exception e){
-//				e.printStackTrace();
-//				continue;
-//			}
-//
-//
-//		}
+		while(true){
+			try{
+			System.out.println("enter query: ");
+			String x=sc.nextLine();
+			String[] list=x.split(" ");
+			int start=Integer.parseInt(list[0]);
+			int end=Integer.parseInt(list[1]);
+			boolean connected=p.isConnected(start, end);
+			if(connected){
+				ArrayList<Integer> path=p.getPath(start, end);
+				p.printList(path, "path");
+			}
+			else{
+				System.out.println("not connected");
+			}
+			System.out.println();
+			}catch(Exception e){
+				e.printStackTrace();
+				continue;
+			}
+
+
+		}
 		
 		
 	}
 	public void init(){
+		placemarkList=new Placemark[SIZE];
 		graph=new Placemark[SIZE][SIZE];
 		condiff=new ConDiffList[SIZE][SIZE];
 		pointList=new ArrayList<PcnPoint>();
@@ -87,6 +94,26 @@ public class PcnM {
 		}
 
 	}
+	public void writePointList(){
+		String filename="C:/users/muham/documents/pointlist.txt";
+		try{
+			ObjectOutputStream os=new ObjectOutputStream(new FileOutputStream(filename));
+			os.writeObject(pointList);
+			os.close();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	public void writePlacemarkList(){
+		String filename="C:/users/muham/documents/placemarklist.txt";
+		try{
+			ObjectOutputStream os=new ObjectOutputStream(new FileOutputStream(filename));
+			os.writeObject(placemarkList);
+			os.close();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
 	public void writeGraph(){
 		String filename="C:/users/muham/documents/graph.txt";
 		try{
@@ -97,19 +124,6 @@ public class PcnM {
 			e.printStackTrace();
 		}
 	}
-	public void readGraph(){
-		String filename="C:/users/muham/documents/graph.txt";
-		try{
-			ObjectInputStream is=new ObjectInputStream(new FileInputStream(filename));
-			graph=(Placemark[][])is.readObject();
-			is.close();
-		}catch(Exception e){
-
-		}
-
-
-	}
-
 
 	public void createPlacemarkList(){
 		int cur=-1;
@@ -118,7 +132,7 @@ public class PcnM {
 			PcnPoint pp=pointList.get(i);
 			if(pp.id!=cur){
 				if(cur!=-1)
-					graph[cur][0]=pm;
+					placemarkList[cur]=pm;
 				pm=new Placemark();
 				pm.id=pp.id;
 				pm.name=pp.name;
@@ -127,14 +141,14 @@ public class PcnM {
 			}
 			pm.waypoints.add(pp.ll);
 			if(i==pointList.size()-1)
-				graph[260][0]=pm;
+				placemarkList[260]=pm;
 		}
 		initPlacemarkPoints();
 	}
 	public void initPlacemarkPoints(){
 		for(int i=0;i<SIZE;i++){
-			graph[i][0].connectionone=graph[i][0].waypoints.get(0);
-			graph[i][0].connectiontwo=graph[i][0].waypoints.get(graph[i][0].waypoints.size()-1);
+			placemarkList[i].connectionone=placemarkList[i].waypoints.get(0);
+			placemarkList[i].connectiontwo=placemarkList[i].waypoints.get(placemarkList[i].waypoints.size()-1);
 		}
 	}
 
@@ -153,8 +167,8 @@ public class PcnM {
 			}
 		}
 		for (int i=0;i<SIZE;i++){
-			for (int j=1;j<SIZE;j++){
-				if(condiff[i][j].list.size()>0){
+			for (int j=0;j<SIZE;j++){
+				if(i!=j && condiff[i][j].list.size()>0){
 					Collections.sort(condiff[i][j].list);
 					ConDiff leastDiff=condiff[i][j].list.get(0);
 					Placemark pm=new Placemark();
@@ -170,7 +184,7 @@ public class PcnM {
 	}
 	public void resetGraph(){
 		for(int i=0;i<SIZE;i++){
-			graph[i][0].visited=false;
+			placemarkList[i].visited=false;
 		}
 	}
 	public boolean isConnected(int root,int dest){
@@ -180,14 +194,14 @@ public class PcnM {
 		boolean connected=false;
 		Queue<Integer> q=new LinkedList<Integer>();
 		q.add(root);
-		graph[root][0].visited=true;
+		placemarkList[root].visited=true;
 		while(!q.isEmpty()){
 			int p=q.poll();
-			for(int i=1;i<SIZE;i++){
-				if(graph[p][i]!=null && !graph[i][0].visited){
-					graph[i][0].prev=p;
+			for(int i=0;i<SIZE;i++){
+				if(graph[p][i]!=null && !placemarkList[i].visited){
+					placemarkList[i].prev=p;
 					q.add(i);
-					graph[i][0].visited=true;
+					placemarkList[i].visited=true;
 					if(i==dest){
 						return true;
 					}
@@ -207,7 +221,7 @@ public class PcnM {
 	public void printGraph(){
 		for (int i=0;i<SIZE;i++){
 			System.out.print("|"+i+"|");
-			for(int j=1;j<SIZE;j++){
+			for(int j=0;j<SIZE;j++){
 				if(graph[i][j]!=null){
 					System.out.print("-->"+j);
 				}
@@ -216,15 +230,20 @@ public class PcnM {
 		}
 	}
 	public ArrayList<Integer> getPath(int start,int end){
+		isConnected(start,end);
 		System.out.println("Getting path for "+start+"||||"+end);
 		ArrayList<Integer> path=new ArrayList<Integer>();
-		if(start==end)
+		path.add(start);
+		if(start==end){
+			path.add(end);
 			return path;
-		int prev=graph[end][0].prev;
+		}
+		int prev=placemarkList[end].prev;
 		while(prev!=start){
 			path.add(prev);
-			prev=graph[prev][0].prev;
+			prev=placemarkList[prev].prev;
 		}
+		path.add(end);
 		Collections.reverse(path);
 		return path;
 	}
