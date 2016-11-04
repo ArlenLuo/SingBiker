@@ -240,6 +240,13 @@ public class PcnManager {
 		LatLng[] arr={conone,contwo};
 		return arr;
 	}
+	public Placemark[] getPlacemarks(){
+		Placemark[] arr=new Placemark[SIZE];
+		for(int i=0;i<SIZE;i++){
+			arr[i]=graph[i][0];
+		}
+		return arr;
+	}
 	public void createPointList(){
 		
 		try{

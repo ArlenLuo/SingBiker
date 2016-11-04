@@ -64,7 +64,7 @@ public class Trip implements Parcelable {
     public void updateRouteCycled(LatLng newWaypoint) {
         LatLng pointStart = routeCycled.getPointStart();
         LatLng pointEnd = routeCycled.getPointEnd();
-        List<LatLng> listOfWaypoints = routeCycled.getWaypoints();
+        ArrayList<LatLng> listOfWaypoints = routeCycled.getWaypoints();
 
         routeCycled = new Route(pointStart, newWaypoint);
         listOfWaypoints.add(pointEnd);

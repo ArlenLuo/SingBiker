@@ -8,6 +8,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.kml.KmlLayer;
@@ -32,7 +33,13 @@ public class MapManager {
         for (int i=0;i<list.size();i++){
             po.add(list.get(i));
         }
-
+        PolygonOptions pg=new PolygonOptions();
+        pg.add(route.getPointStart());
+        pg.add(new LatLng(route.getPointStart().latitude,route.getPointEnd().longitude));
+        pg.add(route.getPointEnd());
+        pg.add(new LatLng(route.getPointEnd().latitude,route.getPointStart().longitude));
+        pg.fillColor(Color.RED);
+        map.addPolygon(pg);
         //po.add(route.getPointEnd());
 
         return map.addPolyline(po);
