@@ -39,7 +39,6 @@ public class PcnManager {
 
 	public void readPointList(){
 		try{
-			Log.d("bikertag","entered reader graph");
 			InputStream is=context.getResources().openRawResource(R.raw.pointlist);
 			ObjectInputStream os=new ObjectInputStream(is);
 			pointList=(ArrayList<PcnPoint>)os.readObject();
@@ -50,7 +49,6 @@ public class PcnManager {
 	}
 	public void readGraph(){
 		try{
-			Log.d("bikertag","entered reader graph");
 			InputStream is=context.getResources().openRawResource(R.raw.placemarklist);
 			ObjectInputStream os=new ObjectInputStream(is);
 			placemarkList=(Placemark[])os.readObject();
@@ -176,8 +174,6 @@ public class PcnManager {
 		//use params to get placemarks in the two loops
 		ArrayList<Integer> firstLoop=getPlacemarksInLoop(startPcnPoint.id);
 		ArrayList<Integer> secondLoop=getPlacemarksInLoop(endPcnPoint.id);
-		Log.d("bikertag","first loop: "+firstLoop);
-		Log.d("bikertag","second loop: "+secondLoop);
 		double[][] dist=new double[firstLoop.size()][secondLoop.size()];
 		double min=Double.MAX_VALUE;
 		for(int i=0;i<firstLoop.size();i++){
@@ -202,7 +198,7 @@ public class PcnManager {
 		llarr[1]=new LatLng(placemarkList[arr[1]].connectionone.latitude,placemarkList[arr[1]].connectionone.longitude);
 		return arr;
 	}
-	public PcnPoint getNearestPcnPoint(LatLng s){
+	public PcnPoint getNearestPcnPoint(LatLng s,ArrayList<Integer> activatedPlacemarks){
 		Location start=new Location("start");
 		start.setLongitude(s.longitude);
 		start.setLatitude(s.latitude);
@@ -213,10 +209,23 @@ public class PcnManager {
 			p.diff=start.distanceTo(end);
 		}
 		Collections.sort(pointList);
-		return pointList.get(0);
+		if(activatedPlacemarks==null)
+			return pointList.get(0);
+		for(int i=0;i<pointList.size();i++){
+			if(notInActivatedPlacemarks(pointList.get(i).id,activatedPlacemarks)){
+				return pointList.get(i);
+			}
+		}
+		return null;
 
 	}
-
+	private boolean notInActivatedPlacemarks(int placemark,ArrayList<Integer> activatedPlacemarks){
+		for(int i=0;i<activatedPlacemarks.size();i++){
+			if(activatedPlacemarks.get(i)==placemark)
+				return false;
+		}
+		return true;
+	}
 	public double distance(Point start,Point end){
 		Location a=new Location("a");
 		a.setLatitude(start.latitude);

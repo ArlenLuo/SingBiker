@@ -291,7 +291,7 @@ public class RoutePlotActivity extends AppCompatActivity
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(start);
 
-        startpp=pcnm.getNearestPcnPoint(start);
+        startpp=pcnm.getNearestPcnPoint(start,null);
         MarkerOptions me=new MarkerOptions();
         me.position(new LatLng(startpp.ll.getLatitude(),startpp.ll.getLongitude()));
         me.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bicycle));
@@ -335,7 +335,7 @@ public class RoutePlotActivity extends AppCompatActivity
         mo.draggable(true);
         endMarker=mMap.addMarker(mo);
 
-        endpp=pcnm.getNearestPcnPoint(end);
+        endpp=pcnm.getNearestPcnPoint(end,null);
         MarkerOptions me=new MarkerOptions();
         me.position(new LatLng(endpp.ll.getLatitude(),endpp.ll.getLongitude()));
         me.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));

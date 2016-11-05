@@ -39,7 +39,7 @@ public class MapManager {
         pg.add(route.getPointEnd());
         pg.add(new LatLng(route.getPointEnd().latitude,route.getPointStart().longitude));
         pg.fillColor(Color.RED);
-        map.addPolygon(pg);
+        //map.addPolygon(pg);
         //po.add(route.getPointEnd());
 
         return map.addPolyline(po);

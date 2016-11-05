@@ -43,7 +43,6 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
     private Context context;
     private PcnManager pcnm;
     private ArrayList<Integer> activatedPlacemarks;
-    private int counter=0;
     public RouteManager(LatLng start,LatLng end,Context c){
         this.start=start;
         this.end=end;
@@ -63,29 +62,42 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
         ArrayList<Route> bufList=new ArrayList<Route>();
         Route one=plotPcnRoute(start,end,false);
         one.setIsPcnRoute(true);
-        Route two=plotPcnRoute(start,end,true);
-        two.setIsPcnRoute(true);
         list.add(one);
-        if(one.getDistanceInMeters()!=two.getDistanceInMeters())
-            list.add(two);
+        //Route two=plotPcnRoute(start,end,true);
+        //two.setIsPcnRoute(true);
+
+        //if(one.getDistanceInMeters()!=two.getDistanceInMeters())
+            //list.add(two);
 
         //direct routes avoiding highways
         bufList=plotDirectRoutes(start,end,true,false);
-        //list.addAll(bufList);
+        list.addAll(bufList);
 
     }
     public Route plotPcnRoute(LatLng start,LatLng end,boolean alternative){
+        System.out.println("Plotting pcn route");
         ArrayList<Route> bufList=new ArrayList<Route>();
         Route pcnRoute=new Route(start,end);
         pcnRoute.setIsPcnRoute(true);
         ArrayList<LatLng> pcnRouteWp=new ArrayList<LatLng>();
         //route connected to pcn
-        PcnPoint startpp=pcnm.getNearestPcnPoint(start);
-        activatedPlacemarks.addAll(pcnm.getPlacemarksInLoop(startpp.id));
+        PcnPoint startpp=pcnm.getNearestPcnPoint(start,activatedPlacemarks);
+        PcnPoint endpp=pcnm.getNearestPcnPoint(end,activatedPlacemarks);
+        if(startpp==null || endpp==null){
+            System.out.println("No pcn route left.Returning direct route");
+            bufList=plotDirectRoutes(start,end,true,false);//startloopexit-->endloopexit
+            for(Route r:bufList){
+                pcnRouteWp.addAll(r.getWaypoints());
+                return pcnRoute;
+            }
+        }
         LatLng startPcnPoint=new LatLng(startpp.ll.getLatitude(),startpp.ll.getLongitude());
-        PcnPoint endpp=pcnm.getNearestPcnPoint(end);
-        activatedPlacemarks.addAll(pcnm.getPlacemarksInLoop(endpp.id));
         LatLng endPcnPoint=new LatLng(endpp.ll.getLatitude(),endpp.ll.getLongitude());
+        activatedPlacemarks.addAll(pcnm.getPlacemarksInLoop(startpp.id));
+        if(!pcnm.isConnected(startpp.id,endpp.id)){
+            activatedPlacemarks.addAll(pcnm.getPlacemarksInLoop(endpp.id));
+        }
+
         bufList=plotDirectRoutes(start,startPcnPoint,true,false);//start-->startpcn
         for(Route r:bufList){
             pcnRouteWp.addAll(r.getWaypoints());
@@ -105,22 +117,7 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
             int[] arr=pcnm.getExitPoints(startpp,endpp);
             temp=plotIntraLoopRoute(startpp,pcnm.getPcnPointOfPlacemark(arr[0],0),alternative);//startpcn-->startloopexit
             pcnRouteWp.addAll(temp.getWaypoints());
-            counter++;
-            if(counter<3){
-                if(noLoopInBetween(pcnm.getLatLngOfPlacemark(arr[0],0),pcnm.getLatLngOfPlacemark(arr[1],0))){
-                    System.out.println("There is NO LOOP in between>>>>>");
-                    bufList=plotDirectRoutes(pcnm.getLatLngOfPlacemark(arr[0],0),pcnm.getLatLngOfPlacemark(arr[1],0),true,false);//startloopexit-->endloopexit
-                    for(Route r:bufList){
-                        pcnRouteWp.addAll(r.getWaypoints());
-                    }
-                }
-                else{
-                    System.out.println("There is LOOP in between>>>>>");
-                    //pcnRouteWp.addAll(plotPcnRoute(pcnm.getLatLngOfPlacemark(arr[0],0),pcnm.getLatLngOfPlacemark(arr[1],0),alternative).getWaypoints());
-                }
-
-            }
-
+            pcnRouteWp.addAll(plotPcnRoute(pcnm.getLatLngOfPlacemark(arr[0],0),pcnm.getLatLngOfPlacemark(arr[1],0),alternative).getWaypoints());//startloopexit-->endloopexit
             temp=plotIntraLoopRoute(pcnm.getPcnPointOfPlacemark(arr[1],0),endpp,alternative);;//endloopexit-->endpcn
             pcnRouteWp.addAll(temp.getWaypoints());
             //list.add(temp);
@@ -136,6 +133,7 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
         return pcnRoute;
     }
     private Route plotIntraLoopRoute(PcnPoint startpp,PcnPoint endpp,boolean alternative){
+        System.out.println("Plotting intra route");
         Route route=new Route(new LatLng(startpp.ll.latitude,startpp.ll.longitude) ,new LatLng(endpp.ll.latitude,endpp.ll.longitude));
         Route temp;
         ArrayList<Integer> path=pcnm.getPath(startpp.id,endpp.id,alternative);//startpcn-->endpcn
@@ -149,7 +147,7 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
         for(int i=0;i<path.size();i++){
             ArrayList<LatLng> waypoints=pcnm.getWaypointsOfPlacemark(curPoint.id);
             //find pos of curpoint
-            System.out.println("Finding pos of curpoint :"+curPoint+"\tID: "+curPoint.id);
+            //System.out.println("Finding pos of curpoint :"+curPoint+"\tID: "+curPoint.id);
             for(int j=0;j<waypoints.size();j++){
                 //System.out.println(waypoints.get(j)+"\t"+curPoint.ll);
                 if(waypoints.get(j).latitude == curPoint.ll.latitude && waypoints.get(j).longitude == curPoint.ll.longitude){
@@ -157,7 +155,7 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
                     break;
                 }
             }
-            System.out.println("Found at :"+pos);
+            //System.out.println("Found at :"+pos);
             if(i==path.size()-1){
                 conlist=new LatLng[2];
                 conlist[0]=new LatLng(endpp.ll.latitude,endpp.ll.longitude);
@@ -166,7 +164,7 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
             else{
                 next=path.get(i+1);
                 //get conpoint
-                System.out.println("Getting connection for "+curPoint.id+" and "+next);
+               // System.out.println("Getting connection for "+curPoint.id+" and "+next);
                 conlist=pcnm.getConnectionBetweenPlacemarks(curPoint.id,next);
             }
             //traverse add points
@@ -186,7 +184,7 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
                     break;
                 }
             }
-            System.out.println("Conpos ="+conpos+"\tPos ="+pos);
+            //System.out.println("Conpos ="+conpos+"\tPos ="+pos);
             if(pos>=conpos){
                 for(int z=pos;conpos<z;z--){
                     route.addSingleWaypoint(waypoints.get(z));
@@ -229,7 +227,6 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
     private ArrayList<Route> plotDirectRoutes(LatLng start,LatLng end,boolean avoidHighway,boolean alt){
         ArrayList<Route> rList=new ArrayList<Route>();
         String data=getRawData(start,end,avoidHighway,alt);
-        Log.d("bikertag",data);
         try{
             JSONObject jo=new JSONObject(data);
             JSONArray arr=jo.getJSONArray("routes");
@@ -242,7 +239,6 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
                 r.setWaypoints((ArrayList)waypoints);
                 r.setDistanceInMeters(Double.parseDouble(legsArr.getJSONObject(0).getJSONObject("distance").get("value").toString()));
                 r.setIsPcnRoute(false);
-                Log.d("bikertag","adding route to list");
                 rList.add(r);
             }
 
@@ -278,7 +274,6 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
             urlString+="&avoid=highways";
         }
         String data="";
-        Log.d("bikertag",urlString);
         try{
             URL url=new URL(urlString);
             HttpURLConnection con=(HttpURLConnection) url.openConnection();
@@ -297,7 +292,6 @@ public class RouteManager extends AsyncTask<Void,Void,Void>{
     protected Void doInBackground(Void... params) {
         plotAllRoutes();
         done=true;
-        Log.d("bikertag","finished bg task");
         return null;
     }
 

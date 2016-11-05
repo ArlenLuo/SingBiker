@@ -1,5 +1,9 @@
 package sg.ntu.dataminers.singbiker.control;
 
+import android.location.Location;
+
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -54,29 +58,29 @@ public class PcnM {
 		p.writeGraph();
 		//p.readGraph();
 		Scanner sc=new Scanner(System.in);
-		while(true){
-			try{
-			System.out.println("enter query: ");
-			String x=sc.nextLine();
-			String[] list=x.split(" ");
-			int start=Integer.parseInt(list[0]);
-			int end=Integer.parseInt(list[1]);
-			boolean connected=p.isConnected(start, end);
-			if(connected){
-				ArrayList<Integer> path=p.getPath(start, end);
-				p.printList(path, "path");
-			}
-			else{
-				System.out.println("not connected");
-			}
-			System.out.println();
-			}catch(Exception e){
-				e.printStackTrace();
-				continue;
-			}
-
-
-		}
+//		while(true){
+//			try{
+//			System.out.println("enter query: ");
+//			String x=sc.nextLine();
+//			String[] list=x.split(" ");
+//			int start=Integer.parseInt(list[0]);
+//			int end=Integer.parseInt(list[1]);
+//			boolean connected=p.isConnected(start, end);
+//			if(connected){
+//				ArrayList<Integer> path=p.getPath(start, end);
+//				p.printList(path, "path");
+//			}
+//			else{
+//				System.out.println("not connected");
+//			}
+//			System.out.println();
+//			}catch(Exception e){
+//				e.printStackTrace();
+//				continue;
+//			}
+//
+//
+//		}
 		
 		
 	}
@@ -155,13 +159,12 @@ public class PcnM {
 	public void createGraph(){
 		for (int i=0;i<pointList.size();i++){
 			for(int j=0;j<pointList.size();j++){
-				if(Math.abs(pointList.get(i).ll.latitude-pointList.get(j).ll.latitude)<0.005
-						&& Math.abs(pointList.get(i).ll.longitude-pointList.get(j).ll.longitude)<0.0005
-						&& pointList.get(i).id!=pointList.get(j).id
-						){
-					double latdiff=Math.abs(pointList.get(i).ll.latitude-pointList.get(j).ll.latitude);
-					double longdiff=Math.abs(pointList.get(i).ll.longitude-pointList.get(j).ll.longitude);
-					condiff[pointList.get(i).id][pointList.get(j).id].list.add(new ConDiff(latdiff,longdiff,pointList.get(j).ll,pointList.get(i).ll));
+				if(pointList.get(i).id!=pointList.get(j).id){
+					double diff=distance(pointList.get(i).ll,pointList.get(j).ll);
+					if(diff<0.04){
+						condiff[pointList.get(i).id][pointList.get(j).id].list.add(new ConDiff(diff,pointList.get(j).ll,pointList.get(i).ll));
+					}
+
 
 				}
 			}
@@ -299,28 +302,34 @@ public class PcnM {
 			e.printStackTrace();
 		}
 	}
+	public double distance(Point one,Point two) {
+		double p = 0.017453292519943295;    // Math.PI / 180
+		double a = 0.5 - Math.cos((two.latitude - one.latitude) * p)/2 +
+				Math.cos(one.latitude * p) * Math.cos(two.latitude * p) *
+						(1 - Math.cos((two.longitude - one.longitude) * p))/2;
+
+		return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
+	}
 	class ConDiffList{
 		ArrayList<ConDiff> list=new ArrayList<ConDiff>();
 
 	}
 	class ConDiff implements Comparable<ConDiff>{
-		double latdiff;
-		double longdiff;
+		double diff;
 		Point con;
 		Point contwo;
 
-		public ConDiff(double latdiff,double longdiff, Point con,Point contwo) {
-			this.longdiff = longdiff;
+		public ConDiff(double diff, Point con,Point contwo) {
 			this.con = con;
 			this.contwo=contwo;
-			this.latdiff = latdiff;
+			this.diff = diff;
 		}
 
 		@Override
 		public int compareTo(ConDiff other) {
-			if(this.latdiff+this.longdiff>other.latdiff+other.longdiff)
+			if(this.diff>other.diff)
 				return 1;
-			else if(this.latdiff+this.longdiff<other.latdiff+other.longdiff)
+			else if(this.diff<other.diff)
 				return -1;
 			else
 				return 0;
