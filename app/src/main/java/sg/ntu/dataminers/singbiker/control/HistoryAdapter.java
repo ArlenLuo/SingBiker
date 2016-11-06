@@ -112,7 +112,7 @@ public class HistoryAdapter extends BaseAdapter {
 
         SimpleDateFormat dformat = new SimpleDateFormat("EEEE, dd MMM yyyy");
         String text1 = dformat.format(h.getDate().getTime());
-        String text2 = ""+position+" km";
+        String text2 = h.getTrip().getTotalDistanceCycled()+" km";
 
         if (deletionMode) {
             holder.im1.setVisibility(View.GONE);
