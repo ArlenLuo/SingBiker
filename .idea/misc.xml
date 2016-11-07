@@ -43,24 +43,20 @@
   <component name="ProjectType">
     <option name="id" value="Android" />
   </component>
-  <component name="SvnBranchConfigurationManager">
-    <option name="myConfigurationMap">
-      <map>
-        <entry key="$PROJECT_DIR$">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="branchUrls">
-                <list>
-                  <option value="https://155.69.100.25:8083/svn/CZ2006/SSP1/DataMiners/SingBiker/SingBiker/branches" />
-                  <option value="https://155.69.100.25:8083/svn/CZ2006/SSP1/DataMiners/SingBiker/SingBiker/tags" />
-                </list>
-              </option>
-              <option name="trunkUrl" value="https://155.69.100.25:8083/svn/CZ2006/SSP1/DataMiners/SingBiker/SingBiker/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-      </map>
-    </option>
-    <option name="mySupportsUserInfoFilter" value="true" />
+  <component name="masterDetails">
+    <states>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
   </component>
 </project>
