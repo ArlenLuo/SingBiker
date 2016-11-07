@@ -216,6 +216,7 @@ public class HistoryActivity extends AppCompatActivity
                 Intent intentWithTrip = new Intent(this, IndividualTripActivity.class);
                 intentWithTrip.putExtra(IntentConstants.CONSTANT_STRING_CALLINGACTIVITY, IntentConstants.CONSTANT_INT_HISTORYLISTACTIVITY);
                 intentWithTrip.putExtra(IntentConstants.CONSTANT_STRING_TRIP, ((History)adapter.getItem(position)).getTrip());
+                intentWithTrip.putExtra(IntentConstants.CONSTANT_LONG_HISTORY_ID, ((History)adapter.getItem(position)).getDBId());
                 startActivity(intentWithTrip);
             }
         }

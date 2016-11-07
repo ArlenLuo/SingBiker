@@ -11,6 +11,7 @@ public interface IntentConstants {
 
     String CONSTANT_STRING_CALLINGACTIVITY = "callingActivity";
     String CONSTANT_STRING_TRIP = "trip";
+    String CONSTANT_LONG_HISTORY_ID = "history_id";
     String CONSTANT_STRING_ROUTE = "route";
     String CONSTANT_STRING_ROUTELIST = "routeList";
 }
