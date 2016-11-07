@@ -34,6 +34,7 @@ import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.control.MapManager;
 import sg.ntu.dataminers.singbiker.entity.Route;
+import sg.ntu.dataminers.singbiker.entity.Settings;
 
 public class IndividualRouteActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
@@ -140,6 +141,8 @@ public class IndividualRouteActivity extends AppCompatActivity
 
         drawRoutes();
 
+        MapManager.drawPcnRoutes(map, getApplicationContext());
+
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         builder.include(markerStart.getPosition());
@@ -208,10 +211,16 @@ public class IndividualRouteActivity extends AppCompatActivity
 
     private void drawRoutes() {
         int color;
-        Random random = new Random();
 
         for (Route route : listOfRoutes) {
-            color = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
+
+            if (route.isPcnRoute()) {
+                color = Settings.getColorPCN();
+            }
+            else {
+                color = Settings.getColorNonPCN();
+            }
+
             MapManager.drawRoute(map, route, color);
         }
     }
