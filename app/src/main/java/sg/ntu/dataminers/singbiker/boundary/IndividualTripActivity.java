@@ -191,7 +191,7 @@ public class IndividualTripActivity extends AppCompatActivity
         Marker markerStart = map.addMarker(new MarkerOptions().position(latLngStart).draggable(false));
         Marker markerEnd = map.addMarker(new MarkerOptions().position(latLngEnd).draggable(false));
 
-        MapManager.drawRoute(map, trip.getRouteCycled(), Color.argb(255, 125, 125, 125));
+        MapManager.drawRoute(map, trip.getRouteCycled(), Settings.getColorPCN());
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
