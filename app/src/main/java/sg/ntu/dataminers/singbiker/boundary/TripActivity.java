@@ -53,7 +53,7 @@ import static sg.ntu.dataminers.singbiker.R.menu.trip;
 public class TripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, SeekBar.OnSeekBarChangeListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private static final int distanceInMetersToDestinationFinished = 9000;
+    private static final int distanceInMetersToDestinationFinished = 20;
     private static final int updateRatePreferred = 10000;
     private static final int updateRateFastest = 5000;
     private GoogleApiClient mGoogleApiClient;

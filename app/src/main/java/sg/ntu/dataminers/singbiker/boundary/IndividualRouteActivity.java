@@ -200,7 +200,7 @@ public class IndividualRouteActivity extends AppCompatActivity
 
         for (Route route : listOfRoutes) {
             distanceInKMs = route.getDistanceInMeters() / 1000;
-            listOfDistances.add(distanceInKMs);
+            listOfDistances.add(Math.round(distanceInKMs * 100.0) / 100.0);
         }
 
         return listOfDistances;
