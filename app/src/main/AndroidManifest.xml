@@ -38,6 +38,10 @@
             android:label="@string/history_actionbar_label"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".boundary.HazeActivity"
+            android:label="Haze"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".boundary.IndividualTripActivity"
             android:label="@string/individual_trip_actionbar_label"
             android:noHistory="true"

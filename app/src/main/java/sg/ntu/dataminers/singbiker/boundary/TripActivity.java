@@ -217,7 +217,8 @@ public class TripActivity extends AppCompatActivity
             intent = new Intent(getApplicationContext(), HistoryActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_haze) {
-
+            intent = new Intent(getApplicationContext(), HazeActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_settings) {
             intent = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent);

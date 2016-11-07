@@ -1,14 +1,13 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
 import android.content.Intent;
-import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -169,7 +168,8 @@ public class IndividualTripActivity extends AppCompatActivity
             intent = new Intent(getApplicationContext(), HistoryActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_haze) {
-
+            intent = new Intent(getApplicationContext(), HazeActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_settings) {
             intent = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent);

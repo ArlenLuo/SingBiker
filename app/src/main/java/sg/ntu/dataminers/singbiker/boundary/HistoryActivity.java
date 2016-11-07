@@ -3,13 +3,13 @@ package sg.ntu.dataminers.singbiker.boundary;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,13 +20,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import sg.ntu.dataminers.singbiker.IntentConstants;
@@ -34,8 +28,6 @@ import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.control.HistoryAdapter;
 import sg.ntu.dataminers.singbiker.control.HistoryDAO;
 import sg.ntu.dataminers.singbiker.entity.History;
-import sg.ntu.dataminers.singbiker.entity.Route;
-import sg.ntu.dataminers.singbiker.entity.Trip;
 
 public class HistoryActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnItemClickListener {
@@ -168,7 +160,8 @@ public class HistoryActivity extends AppCompatActivity
         } else if (id == R.id.nav_history) {
 
         } else if (id == R.id.nav_haze) {
-
+            intent = new Intent(getApplicationContext(), HazeActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_settings) {
             intent = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent);

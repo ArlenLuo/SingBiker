@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -41,12 +40,10 @@ import java.util.Locale;
 
 import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
-import sg.ntu.dataminers.singbiker.control.IncidentManager;
 import sg.ntu.dataminers.singbiker.control.MapManager;
 import sg.ntu.dataminers.singbiker.control.PcnManager;
 import sg.ntu.dataminers.singbiker.control.RouteManager;
 import sg.ntu.dataminers.singbiker.control.SettingsManager;
-import sg.ntu.dataminers.singbiker.entity.Incident;
 import sg.ntu.dataminers.singbiker.entity.PcnPoint;
 import sg.ntu.dataminers.singbiker.entity.Route;
 
@@ -138,7 +135,8 @@ public class RoutePlotActivity extends AppCompatActivity
             Intent i = new Intent(getApplicationContext(), HistoryActivity.class);
             startActivity(i);
         } else if (id == R.id.nav_haze) {
-
+            intent = new Intent(getApplicationContext(), HazeActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_settings) {
             intent = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent);
