@@ -294,7 +294,7 @@ public class RoutePlotActivity extends AppCompatActivity
         startpp=pcnm.getNearestPcnPoint(start,null);
         MarkerOptions me=new MarkerOptions();
         me.position(new LatLng(startpp.ll.getLatitude(),startpp.ll.getLongitude()));
-        me.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bicycle));
+        me.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bike));
         me.title("Nearest Start PCN point");
         cs=mMap.addMarker(me);
 
@@ -339,7 +339,7 @@ public class RoutePlotActivity extends AppCompatActivity
         MarkerOptions me=new MarkerOptions();
         me.position(new LatLng(endpp.ll.getLatitude(),endpp.ll.getLongitude()));
         me.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-        me.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bicycle));
+        me.icon(BitmapDescriptorFactory.fromResource(R.mipmap.bike));
         me.title("Nearest End PCN point");
         ce=mMap.addMarker(me);
         if(startpp!=null){
