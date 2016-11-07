@@ -27,8 +27,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import sg.ntu.dataminers.singbiker.IntentConstants;
 import sg.ntu.dataminers.singbiker.R;
+import sg.ntu.dataminers.singbiker.control.HistoryDAO;
 import sg.ntu.dataminers.singbiker.control.MapManager;
 import sg.ntu.dataminers.singbiker.control.SettingsManager;
+import sg.ntu.dataminers.singbiker.entity.History;
 import sg.ntu.dataminers.singbiker.entity.Settings;
 import sg.ntu.dataminers.singbiker.entity.Trip;
 
@@ -37,6 +39,7 @@ public class IndividualTripActivity extends AppCompatActivity
 
     private int callingActivity;
     private Trip trip;
+    private long historyID;
     private boolean preconditionsSatisfied;
     private GoogleMap map;
     private LatLngBounds bounds;
@@ -58,7 +61,14 @@ public class IndividualTripActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         callingActivity = getIntent().getIntExtra(IntentConstants.CONSTANT_STRING_CALLINGACTIVITY, -1);
-        trip = getIntent().getParcelableExtra(IntentConstants.CONSTANT_STRING_TRIP);
+
+        if (callingActivity == IntentConstants.CONSTANT_INT_TRIPACTIVITY) {
+            trip = getIntent().getParcelableExtra(IntentConstants.CONSTANT_STRING_TRIP);
+        }
+        else if (callingActivity == IntentConstants.CONSTANT_INT_HISTORYLISTACTIVITY) {
+            historyID = getIntent().getLongExtra(IntentConstants.CONSTANT_LONG_HISTORY_ID, -1);
+            trip = getIntent().getParcelableExtra(IntentConstants.CONSTANT_STRING_TRIP);
+        }
 
         TextView textView = (TextView) findViewById(R.id.individual_trip_map_textview);
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.individual_trip_map_fragment);
@@ -126,14 +136,20 @@ public class IndividualTripActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_save_trip) {
-            // Save trip in history here!
+            saveTripToDatabase(trip);
+
+            Intent intent = new Intent(getApplicationContext(), RoutePlotActivity.class);
+            startActivity(intent);
         }
         else if (id == R.id.action_discard_trip) {
             Intent intent = new Intent(getApplicationContext(), RoutePlotActivity.class);
             startActivity(intent);
         }
         else if (id == R.id.action_remove_trip) {
-            Toast.makeText(getApplicationContext(), "REMOVE TRIP", Toast.LENGTH_SHORT).show();
+            removeTripFromDatabase(historyID);
+
+            Intent intent = new Intent(getApplicationContext(), RoutePlotActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -210,5 +226,20 @@ public class IndividualTripActivity extends AppCompatActivity
         }
 
         preconditionsSatisfied = true;
+    }
+
+    private void saveTripToDatabase(Trip trip) {
+        HistoryDAO dao = new HistoryDAO(this);
+        dao.open();
+        History h = new History(trip, trip.getDateFinished());
+        dao.addHistory(h);
+        dao.close();
+    }
+
+    private void removeTripFromDatabase(long historyID) {
+        HistoryDAO dao = new HistoryDAO(this);
+        dao.open();
+        dao.removeHistory(historyID);
+        dao.close();
     }
 }
