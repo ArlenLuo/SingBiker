@@ -1,0 +1,8 @@
+public class RegionLatLng{
+  public final static LatLng SOUTH=new LatLng(1.29587,103.82);
+  public final static LatLng NORTH=new LatLng(1.41803,103.82);
+  public final static LatLng EAST=new LatLng(1.35735,103.94);
+  public final static LatLng CENTRAL=new LatLng(1.35735,103.82);
+  public final static LatLng WEST=new LatLng(1.35735,103.7);
+
+}
