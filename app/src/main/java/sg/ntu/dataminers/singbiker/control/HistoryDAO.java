@@ -91,7 +91,7 @@ public class HistoryDAO {
         return list;
     }
 
-    public void DANGEROUS_REMOVE_THIS_METHOD() {
+    public void wipeHistoryTable() {
         db.execSQL(HISTORY_TABLE_DROP);
         dbmanager.onCreate(db);
     }
