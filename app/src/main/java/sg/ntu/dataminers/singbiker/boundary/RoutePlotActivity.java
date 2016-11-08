@@ -187,7 +187,6 @@ public class RoutePlotActivity extends AppCompatActivity
             @Override
             public void onMapClick(LatLng latLng) {
                 String loc=getLocation(latLng);
-                Toast.makeText(getBaseContext(),"MAP CLICKED ",Toast.LENGTH_SHORT).show();
                     if(start==null){
                         start=latLng;
                         startSearchBar.setText(loc);
@@ -306,11 +305,8 @@ public class RoutePlotActivity extends AppCompatActivity
                     z=z.concat("-->"+x);
                 }
                 Log.d("bikertag",startpp.id+" and "+endpp.id+" path=="+z);
-                Toast.makeText(getBaseContext(),"Connected",Toast.LENGTH_SHORT).show();
-                Toast.makeText(getBaseContext(),"path=="+z,Toast.LENGTH_LONG).show();
             }
             else{
-                Toast.makeText(getBaseContext(),"Not Connected",Toast.LENGTH_SHORT).show();
             }
         }
         if(end!=null){
@@ -350,10 +346,8 @@ public class RoutePlotActivity extends AppCompatActivity
                     z=z.concat("-->"+x);
                 }
                 Log.d("bikertag",startpp.id+" and "+endpp.id+" path=="+z);
-                Toast.makeText(getBaseContext(),"Connected",Toast.LENGTH_SHORT).show();
             }
             else{
-                Toast.makeText(getBaseContext(),"Not Connected",Toast.LENGTH_SHORT).show();
             }
 
         }
