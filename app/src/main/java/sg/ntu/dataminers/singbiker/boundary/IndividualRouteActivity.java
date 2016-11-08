@@ -1,6 +1,7 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -69,10 +71,30 @@ public class IndividualRouteActivity extends AppCompatActivity
         // Extract the distances from each route and add them to a list.
         ArrayList<Double> listOfDistances = createDistanceList();
 
-        ArrayAdapter<Double> listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, listOfDistances);
+        ArrayAdapter<Double> listAdapter = new ArrayAdapter<Double>(this, android.R.layout.simple_list_item_1, android.R.id.text1, listOfDistances){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent){
+                View view = super.getView(position,convertView,parent);
+                TextView tv=(TextView)view.findViewById(android.R.id.text1);
+                tv.setTextColor(Color.WHITE);
+                if(position==0){
+                    view.setBackgroundColor(Settings.getColorPCN());
+                    tv.setText(tv.getText()+"KM\tPCN ROUTE");
+                }
+
+                if(position==1){
+                    view.setBackgroundColor(Settings.getColorNonPCN());
+                    tv.setText(tv.getText()+"KM\tNON PCN ROUTE");
+                }
+
+
+                return view;
+            }
+        };
         listView.setAdapter(listAdapter);
         setListViewHeight();
         listView.setOnItemClickListener(this);
+
     }
 
     @Override
