@@ -16,14 +16,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
 import sg.ntu.dataminers.singbiker.R;
-import sg.ntu.dataminers.singbiker.control.HazeManager;
 import sg.ntu.dataminers.singbiker.control.MapManager;
 import sg.ntu.dataminers.singbiker.entity.Haze;
 
@@ -50,14 +47,7 @@ public class HazeActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view_haze);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.nav_haze);
 
-        //map gives null pointer error
-        setContentView(R.layout.content_haze);
-        //SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                //.findFragmentById(R.id.map);
-        //MapFragment mapFragment = (MapFragment) getFragmentManager() .findFragmentById(R.id.map);
-        //mapFragment.getMapAsync(this);
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.haze_map_fragment);
         mapFragment.getMapAsync(this);
 
@@ -66,7 +56,7 @@ public class HazeActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_settings);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_haze);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -79,8 +69,8 @@ public class HazeActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng singapore = new LatLng(1.3380694,103.9052101);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,11));
+        LatLng singapore = new LatLng(1.35735,103.82);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,10));
         MapManager.drawHaze(mMap,HazeActivity.this);
     }
 
@@ -106,7 +96,7 @@ public class HazeActivity extends AppCompatActivity
             startActivity(intent);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_route_plot);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout_haze);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
