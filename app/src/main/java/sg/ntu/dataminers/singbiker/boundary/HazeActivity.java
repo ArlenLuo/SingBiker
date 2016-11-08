@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.control.HazeManager;
+import sg.ntu.dataminers.singbiker.control.MapManager;
 import sg.ntu.dataminers.singbiker.entity.Haze;
 
 
@@ -57,11 +58,10 @@ public class HazeActivity extends AppCompatActivity
                 //.findFragmentById(R.id.map);
         //MapFragment mapFragment = (MapFragment) getFragmentManager() .findFragmentById(R.id.map);
         //mapFragment.getMapAsync(this);
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.haze_map_fragment);
         mapFragment.getMapAsync(this);
 
-        HazeManager hm = new HazeManager();
-        ArrayList<Haze> hazeList = hm.getHazeInfo();
+
     }
 
     @Override
@@ -74,55 +74,14 @@ public class HazeActivity extends AppCompatActivity
         }
     }
 
-    private Float psi(double PSIvalue) {
-        if (PSIvalue > 300) {
-            return BitmapDescriptorFactory.HUE_RED;} //0.0
-        else if (PSIvalue > 200) {
-         return BitmapDescriptorFactory.HUE_ORANGE;} //30.0
-        else if (PSIvalue > 100) {
-          return BitmapDescriptorFactory.HUE_YELLOW;} //60.0
-        else if (PSIvalue >50) {
-          return BitmapDescriptorFactory.HUE_AZURE;} //210.0
-        else  {
-          return BitmapDescriptorFactory.HUE_GREEN;} //120.0
-    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-            mMap = googleMap;
-
+        mMap = googleMap;
         LatLng singapore = new LatLng(1.3380694,103.9052101);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,11));
-
-        North = new LatLng(1.41803,103.82);
-        mMap.addMarker(new MarkerOptions().position(North)
-                .title("North")
-                .snippet(Double.toString(hazeList.get(0).getPsiLevel()))
-                .icon(BitmapDescriptorFactory.defaultMarker(psi(hazeList.get(0).getPsiLevel()))));
-
-        South = new LatLng(1.29587,103.82);
-        mMap.addMarker(new MarkerOptions().position(South)
-                .title("South")
-                .snippet(Double.toString(hazeList.get(1).getPsiLevel()))
-                .icon(BitmapDescriptorFactory.defaultMarker(psi(hazeList.get(1).getPsiLevel()))));
-
-        East =  new LatLng(1.35735,103.94);
-        mMap.addMarker(new MarkerOptions().position(East)
-                .title("East")
-                .snippet(Double.toString(hazeList.get(2).getPsiLevel()))
-                .icon(BitmapDescriptorFactory.defaultMarker(psi(hazeList.get(2).getPsiLevel()))));
-
-        West = new LatLng(1.35735,103.7);
-        mMap.addMarker(new MarkerOptions().position(West)
-                .title("West")
-                .snippet(Double.toString(hazeList.get(3).getPsiLevel()))
-                .icon(BitmapDescriptorFactory.defaultMarker(psi(hazeList.get(3).getPsiLevel()))));
-
-        Central = new LatLng(1.35735,103.82);
-        mMap.addMarker(new MarkerOptions().position(Central)
-                .title("Central")
-                .snippet(Double.toString(hazeList.get(4).getPsiLevel()))
-                .icon(BitmapDescriptorFactory.defaultMarker(psi(hazeList.get(4).getPsiLevel()))));
+        MapManager.drawHaze(mMap,HazeActivity.this);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
