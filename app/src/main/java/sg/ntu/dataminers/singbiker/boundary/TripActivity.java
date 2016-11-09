@@ -269,7 +269,8 @@ public class TripActivity extends AppCompatActivity
 
             if (!userHasStarted) {
                 currentTrip.beginCycling(userCurrentPosition);
-                markerCurrent = map.addMarker(new MarkerOptions().position(userCurrentPosition).draggable(false).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_trip_person_pin)));
+                markerCurrent = map.addMarker(new MarkerOptions().position(userCurrentPosition).draggable(false));
+                //.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_trip_person_pin)));
                 userHasStarted = true;
             }
             else {

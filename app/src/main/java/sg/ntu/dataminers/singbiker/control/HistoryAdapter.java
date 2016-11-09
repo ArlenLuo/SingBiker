@@ -15,6 +15,7 @@ import java.util.List;
 
 import sg.ntu.dataminers.singbiker.R;
 import sg.ntu.dataminers.singbiker.entity.History;
+import sg.ntu.dataminers.singbiker.entity.Settings;
 
 /**
  * Created by yvesl on 31.10.2016.
@@ -112,7 +113,12 @@ public class HistoryAdapter extends BaseAdapter {
 
         SimpleDateFormat dformat = new SimpleDateFormat("EEEE, dd MMM yyyy");
         String text1 = dformat.format(h.getDate().getTime());
-        String text2 = h.getTrip().getTotalDistanceCycled()+" km";
+        String text2;
+        if (Settings.isUnitSystemMetric()) {
+            text2 = h.getTrip().getTotalDistanceCycled() + " km";
+        } else {
+            text2 = SettingsManager.kmToMile(h.getTrip().getTotalDistanceCycled()) + " mile(s)";
+        }
 
         if (deletionMode) {
             holder.im1.setVisibility(View.GONE);
