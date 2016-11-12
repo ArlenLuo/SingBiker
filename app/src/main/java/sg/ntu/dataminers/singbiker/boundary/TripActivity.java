@@ -1,5 +1,6 @@
 package sg.ntu.dataminers.singbiker.boundary;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -34,7 +36,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -53,7 +54,7 @@ import static sg.ntu.dataminers.singbiker.R.menu.trip;
 public class TripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, SeekBar.OnSeekBarChangeListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private static final int distanceInMetersToDestinationFinished = 20;
+    private static final int distanceInMetersToDestinationFinished = 100;
     private static final int updateRatePreferred = 10000;
     private static final int updateRateFastest = 5000;
     private GoogleApiClient mGoogleApiClient;
@@ -324,8 +325,17 @@ public class TripActivity extends AppCompatActivity
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         try {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            //Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            //Location location = new Location("test");
+            //location.setLatitude(1.346426);
+            //location.setLongitude(103.687177);
+            //userCurrentPosition = new LatLng(location.getLatitude(), location.getLongitude());
+
             userCurrentPosition = new LatLng(location.getLatitude(), location.getLongitude());
+
         } catch (SecurityException se) {
             se.printStackTrace();
         }

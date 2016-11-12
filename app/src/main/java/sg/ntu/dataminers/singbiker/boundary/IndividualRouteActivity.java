@@ -71,7 +71,7 @@ public class IndividualRouteActivity extends AppCompatActivity
         // Extract the distances from each route and add them to a list.
         ArrayList<Double> listOfDistances = createDistanceList();
 
-        ArrayAdapter<Double> listAdapter = new ArrayAdapter<Double>(this, android.R.layout.simple_list_item_1, android.R.id.text1, listOfDistances){
+        ArrayAdapter<Double> listAdapter = new ArrayAdapter<Double>(this, android.R.layout.simple_list_item_1, android.R.id.text1, listOfDistances) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent){
                 View view = super.getView(position,convertView,parent);
